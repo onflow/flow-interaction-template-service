@@ -17,6 +17,8 @@ export function getConfig(env) {
   const auditDir = process.env.AUDIT_DIR
   const templateDir = process.env.TEMPLATE_DIR
 
+  const revokedJsonFile = process.env.REVOKED_FILE
+
   return {
     port,
     accessApi,
@@ -24,6 +26,7 @@ export function getConfig(env) {
     databaseMigrationPath,
     databaseUrl,
     auditDir,
-    templateDir
+    templateDir,
+    revokedJsonFile
   }
 }

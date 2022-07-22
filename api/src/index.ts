@@ -41,7 +41,7 @@ async function run() {
   try {
     fs.unlinkSync(config.dbPath);
   } catch (e) {}
-  
+
   // Run all database migrations
   await db.migrate.latest()
 
@@ -58,6 +58,7 @@ async function run() {
 
     await templateService.seed()
     await auditService.seed()
+    await revokedService.seed()
 
     const app = initApp( auditService, templateService, revokedService )
 

@@ -1,4 +1,5 @@
 import { Revoked } from "../models/revoked";
+import {readFiles} from "../utils/read-files"
 
  class RevokedService {
     config: any;
@@ -29,6 +30,19 @@ import { Revoked } from "../models/revoked";
     }))[0];
     
     return foundRevoked ? true : false;
+  }
+
+  async seed () {
+    const revokedFile = (await readFiles(this.config.revokedJsonFile))[0]
+
+    let parsedRevoked = JSON.parse(revokedFile.content)
+
+    await Promise.all(Object.keys(parsedRevoked).map(async auditId => {
+        await Revoked.query().insertAndFetch({
+            id: auditId,
+        })
+    }))
+
   }
  
 }
