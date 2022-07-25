@@ -2,11 +2,12 @@ import { Knex } from "knex";
 
 
 export async function up(knex: Knex): Promise<void> {
-    return knex.schema.createTable("templates", async table => {
+    await knex.schema.dropTableIfExists('templates')
+    await knex.schema.createTable("templates", async table => {
         table.string("id").primary()
         table.json("json_string")
         table.timestamps(true, true)
-      })
+    })
 }
 
 
