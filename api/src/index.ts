@@ -56,9 +56,15 @@ async function run() {
     const auditService = new AuditService(config)
     const revokedService = new RevokedService(config)
 
+    console.log("...Seeding TemplateService...")
     await templateService.seed()
+    console.log("Seeded TemplateService!")
+    console.log("...Seeding AuditService...")
     await auditService.seed()
+    console.log("Seeded AuditService!")
+    console.log("...Seeding RevokedService...")
     await revokedService.seed()
+    console.log("Seeded RevokedService!")
 
     const app = initApp( auditService, templateService, revokedService )
 
