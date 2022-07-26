@@ -38,11 +38,11 @@ import {readFiles} from "../utils/read-files"
     let parsedRevoked = JSON.parse(revokedFile.content)
 
     await Promise.all(Object.keys(parsedRevoked).map(async auditId => {
+        console.log("Revoked Seed, inserting: id=", auditId)
         await Revoked.query().insertAndFetch({
             id: auditId,
         })
     }))
-
   }
  
 }
