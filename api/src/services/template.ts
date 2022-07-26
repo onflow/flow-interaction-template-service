@@ -38,6 +38,8 @@ import {readFiles} from "../utils/read-files"
   async seed() {
     const templates = await readFiles(this.config.templateDir + "/*.json")
 
+    await Template.query().del()
+    
     for (let template of templates) {
       let parsedTemplate = JSON.parse(template.content)
       await Template.query().insertAndFetch({
