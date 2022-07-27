@@ -31,8 +31,14 @@ import {readFiles} from "../utils/read-files"
     foundTemplate = (await Template.query().where({
        id: templateId,
     }))[0];
-    
-    return foundTemplate ? JSON.parse(foundTemplate.json_string) : null;
+
+    let foundTemplateJson = foundTemplate?.json_string || null
+
+    if (typeof foundTemplateJson === "string") {
+      foundTemplateJson = JSON.parse(foundTemplateJson)
+    } 
+
+    return foundTemplateJson;
   }
 
   async seed() {
