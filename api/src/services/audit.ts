@@ -38,6 +38,8 @@ import {readFiles} from "../utils/read-files"
   async seed() {
     const audits = await readFiles(this.config.auditDir + "/*.json")
 
+    await Audit.query().del()
+
     for (let audit of audits) {
       let parsedAudit = JSON.parse(audit.content)
 

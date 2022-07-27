@@ -35,14 +35,16 @@ import {readFiles} from "../utils/read-files"
   async seed () {
     const revokedFile = (await readFiles(this.config.revokedJsonFile))[0]
 
+    await Revoked.query().del()
+
     let parsedRevoked = JSON.parse(revokedFile.content)
 
     await Promise.all(Object.keys(parsedRevoked).map(async auditId => {
+        console.log("Revoked Seed, inserting: id=", auditId)
         await Revoked.query().insertAndFetch({
             id: auditId,
         })
     }))
-
   }
  
 }
