@@ -15,6 +15,8 @@ export namespace InteractionTemplateUtils {
 
     function verifyInteractionTemplateAudit(opts: {}): string
 
+    function deriveCadenceByNetwork(opts: {}): string
+
 }
 
 // CONFIGURATION

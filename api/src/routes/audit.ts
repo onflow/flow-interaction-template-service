@@ -6,18 +6,6 @@
  function auditRouter(auditService: AuditService): Router {
    const router = express.Router()
  
-  //  router.post(
-  //    "/audit",
-  //    validateRequest,
-  //    async (req: Request, res: Response) => {
-  //      const audit: JSON = req.body
-  //      const newAudit = await auditService.insertAudit(JSON.stringify(audit))
-  //      return res.send({
-  //       audit: newAudit
-  //      })
-  //    }
-  //  )
- 
    router.get(
      "/audit",
      async (req: Request, res: Response) => {

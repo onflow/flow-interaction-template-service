@@ -16,7 +16,7 @@ const initDB = config => {
       directory: config.databaseMigrationPath,
     },
   } : {
-    client: "better-sqlite3",
+    client: "sqlite3",
     useNullAsDefault: true,
     connection: {
       filename: "./" + config.dbPath,

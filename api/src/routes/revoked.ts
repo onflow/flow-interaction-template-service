@@ -5,21 +5,7 @@ import express, {Request, Response, Router} from "express"
  
  function revokedRouter(revokedService: RevokedService): Router {
    const router = express.Router()
- 
-//    router.post(
-//      "/revoked",
-//      [body("recipient").exists(), body("itemID").isInt()],
-//      validateRequest,
-//      async (req: Request, res: Response) => {
-//        const auditId = req.query.audit_id as string
 
-//        const revoked = await revokedService.insertRevoked(auditId)
-//        return res.send({
-//         revoked
-//        })
-//      }
-//    )
- 
    router.get(
      "/revoked",
      async (req: Request, res: Response) => {

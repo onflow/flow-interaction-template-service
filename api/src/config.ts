@@ -12,12 +12,17 @@ export function getConfig(env) {
   const databaseUrl = env.DATABASE_URL  
 
   const databaseMigrationPath =
-    process.env.MIGRATION_PATH || defaultMigrationPath
+    env.MIGRATION_PATH || defaultMigrationPath
 
-  const auditDir = process.env.AUDIT_DIR
-  const templateDir = process.env.TEMPLATE_DIR
+  const auditDir = env.AUDIT_DIR
+  const templateDir = env.TEMPLATE_DIR
 
-  const revokedJsonFile = process.env.REVOKED_FILE
+  const revokedJsonFile = env.REVOKED_FILE
+
+  console.log("ENV: ", env)
+  console.log("accessApi", accessApi)
+  console.log("revokedJsonFile: ", revokedJsonFile)
+  console.log("databaseMigrationPath: ", databaseMigrationPath)
 
   return {
     port,
