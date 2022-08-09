@@ -6,11 +6,11 @@ import path from "path"
 
 import auditRouter from "./routes/audit"
 import templateRouter from "./routes/template"
-import revokedRouter from "./routes/revoked"
+import revocationRouter from "./routes/revocation"
 
 import {AuditService} from "./services/audit"
 import {TemplateService} from "./services/template"
-import {RevokedService} from "./services/revoked"
+import {RevocationService} from "./services/revocation"
 
 const V1 = "/v1/"
 
@@ -18,7 +18,7 @@ const V1 = "/v1/"
 const initApp = (
   auditService: AuditService,
   templateService: TemplateService,
-  revokedService: RevokedService
+  revocationService: RevocationService
 ) => {
   const app = express()
 
@@ -27,7 +27,7 @@ const initApp = (
   app.use(urlencoded({extended: false}))
   app.use(V1, auditRouter(auditService))
   app.use(V1, templateRouter(templateService))
-  app.use(V1, revokedRouter(revokedService))
+  app.use(V1, revocationRouter(revocationService))
 
   app.all("*", async (req: Request, res: Response) => {
     return res.sendStatus(404)

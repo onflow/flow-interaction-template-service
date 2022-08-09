@@ -1,36 +1,39 @@
-import {knex} from "knex"
-import {Model} from "objection"
+import { knex } from "knex";
+import { Model } from "objection";
 
-const initDB = config => {
+const initDB = (config) => {
   // Use a Postgres DB in production.
-  const DBConfig = process.env.NODE_ENV === 'production' ? {
-    client: "postgresql",
-    connection: {
-      connectionString: config.databaseUrl,
-      ssl:
-        process.env.NODE_ENV === "production"
-          ? { rejectUnauthorized: false }
-          : false,
-    },
-    migrations: {
-      directory: config.databaseMigrationPath,
-    },
-  } : {
-    client: "sqlite3",
-    useNullAsDefault: true,
-    connection: {
-      filename: "./" + config.dbPath,
-    },
-    migrations: {
-      directory: config.databaseMigrationPath,
-    },
-  }
-  
-  const knexInstance = knex(DBConfig)
+  const DBConfig =
+    process.env.NODE_ENV === "production"
+      ? {
+          client: "postgresql",
+          connection: {
+            connectionString: config.databaseUrl,
+            ssl:
+              process.env.NODE_ENV === "production"
+                ? { rejectUnauthorized: false }
+                : false,
+          },
+          migrations: {
+            directory: config.databaseMigrationPath,
+          },
+        }
+      : {
+          client: "sqlite3",
+          useNullAsDefault: true,
+          connection: {
+            filename: "./" + config.dbPath,
+          },
+          migrations: {
+            directory: config.databaseMigrationPath,
+          },
+        };
 
-  Model.knex(knexInstance)
+  const knexInstance = knex(DBConfig);
 
-  return knexInstance
-}
+  Model.knex(knexInstance);
 
-export default initDB
+  return knexInstance;
+};
+
+export default initDB;

@@ -1,11 +1,11 @@
 import { BaseModel } from "./base";
 
-class Revoked extends BaseModel {
+class Revocation extends BaseModel {
   id!: string;
 
   static get tableName() {
-    return "revoked";
+    return "revocations";
   }
 }
 
-export { Revoked };
+export { Revocation };
