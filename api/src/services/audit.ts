@@ -33,7 +33,13 @@ class AuditService {
       })
     )[0];
 
-    return foundAudit ? JSON.parse(foundAudit.json_string) : null;
+    let foundAuditJson = foundAudit?.json_string || null;
+
+    if (typeof foundAuditJson === "string") {
+      foundAuditJson = JSON.parse(foundAuditJson);
+    }
+
+    return foundAuditJson;
   }
 
   async getAuditBySignerAddress(
@@ -51,7 +57,13 @@ class AuditService {
       })
     )[0];
 
-    return foundAudit ? JSON.parse(foundAudit.json_string) : null;
+    let foundAuditJson = foundAudit?.json_string || null;
+
+    if (typeof foundAuditJson === "string") {
+      foundAuditJson = JSON.parse(foundAuditJson);
+    }
+
+    return foundAuditJson;
   }
 
   async getAuditsByTemplateID(templateId: string, signerNetwork: string) {
@@ -63,7 +75,13 @@ class AuditService {
     });
 
     return foundAudits
-      ? foundAudits.map((foundAudit) => JSON.parse(foundAudit.json_string))
+      ? foundAudits.map((foundAudit) => {
+          if (typeof foundAudit === "string") {
+            return JSON.parse(foundAudit);
+          } else {
+            return foundAudit;
+          }
+        })
       : null;
   }
 
