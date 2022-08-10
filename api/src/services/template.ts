@@ -87,6 +87,12 @@ class TemplateService {
             network: "testnet",
           });
 
+        const recomputedTemplateID =
+          fcl.InteractionTemplateUtils.generateTemplateId({
+            template,
+          });
+        if (recomputedTemplateID !== parsedTemplate.id) throw new Error();
+
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
           json_string: template.content,

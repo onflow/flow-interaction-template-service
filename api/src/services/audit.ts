@@ -36,14 +36,18 @@ class AuditService {
     return foundAudit ? JSON.parse(foundAudit.json_string) : null;
   }
 
-  async getAuditBySignerAddress(templateId: string, signerAddress: string, signerNetwork: string) {
+  async getAuditBySignerAddress(
+    templateId: string,
+    signerAddress: string,
+    signerNetwork: string
+  ) {
     let foundAudit: Audit;
 
     foundAudit = (
       await Audit.query().where({
         template_id: templateId,
         signer_address: signerAddress,
-        signer_network: signerNetwork
+        signer_network: signerNetwork,
       })
     )[0];
 
@@ -55,7 +59,7 @@ class AuditService {
 
     foundAudits = await Audit.query().where({
       template_id: templateId,
-      signer_network: signerNetwork
+      signer_network: signerNetwork,
     });
 
     return foundAudits

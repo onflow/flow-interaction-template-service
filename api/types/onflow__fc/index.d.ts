@@ -4,35 +4,32 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 declare module "@onflow/fcl" {
-
-export namespace InteractionTemplateUtils {
-    
+  export namespace InteractionTemplateUtils {
     function generateDependencyPin(opts: {}): string;
 
-    function generateDependencyPinAtLatestSealedBlock(opts: {}): string
+    function generateDependencyPinAtLatestSealedBlock(opts: {}): string;
 
-    function generateTemplateId(opts: {}): string
+    function generateTemplateId(opts: {}): string;
 
-    function verifyInteractionTemplateAudit(opts: {}): string
+    function verifyInteractionTemplateAudit(opts: {}): string;
 
-    function deriveCadenceByNetwork(opts: {}): string
+    function deriveCadenceByNetwork(opts: {}): string;
+  }
 
-}
+  // CONFIGURATION
+  export type Environment = "local" | "canarynet" | "testnet" | "mainnet";
 
-// CONFIGURATION
-export type Environment = 'local' | 'canarynet' | 'testnet' | 'mainnet';
-
-/**
- * @see {@link https://docs.onflow.org/fcl/reference/api/#common-configuration-keys}
- * @see {@link https://docs.onflow.org/fcl/reference/configure-fcl/}
- */
-export interface ConfigurationOptions {
+  /**
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#common-configuration-keys}
+   * @see {@link https://docs.onflow.org/fcl/reference/configure-fcl/}
+   */
+  export interface ConfigurationOptions {
     /**
      * API URL for the Flow Blockchain Access Node you want to be communicating
      * with. See all available access node endpoints
      * [here]{@link https://docs.onflow.org/access-api/#flow-access-node-endpoints}.
      */
-    'accessNode.api': string;
+    "accessNode.api": string;
     /**
      * Used in conjunction with stored interactions.
      */
@@ -40,25 +37,25 @@ export interface ConfigurationOptions {
     /**
      * Points FCL at the Wallet or Wallet Discovery mechanism.
      */
-    'discovery.wallet': string;
+    "discovery.wallet": string;
     /**
      * ALPHA - Endpoint for alternative configurable Wallet Discovery mechanism.
      * Read more on
      * [discovery]{@link https://docs.onflow.org/fcl/reference/api/#discovery}.
      */
-    'discovery.authn.endpoint'?: string;
+    "discovery.authn.endpoint"?: string;
     /**
      * Your applications title, can be requested by wallets and other services.
      */
-    'app.detail.title'?: string;
+    "app.detail.title"?: string;
     /**
      * Url for your applications icon, can be requested by wallets and other
      * services.
      */
-    'app.detail.icon'?: string;
-}
+    "app.detail.icon"?: string;
+  }
 
-export interface Configuration {
+  export interface Configuration {
     /**
      * Set a configuration value.
      *
@@ -85,114 +82,117 @@ export interface Configuration {
      * @param fallback - An optional fallback value to return in case the value
      * was not set.
      */
-    get(key: string, fallback?: string | number): Promise<string | number | undefined>;
-}
+    get(
+      key: string,
+      fallback?: string | number
+    ): Promise<string | number | undefined>;
+  }
 
-/**
- * FCL has a mechanism that lets you configure various aspects of FCL. The
- * main idea here (from an FCL perspective) should be that when you move from
- * one instance of the Flow Blockchain to another (Local Emulator to Testnet
- * to Mainnet) the only thing you should need to change (once again from an
- * FCL perspective) is your configuration.
- *
- * ```typescript
- * import * as fcl from "@onflow/fcl"
- *
- * const configuration = fcl.config({
- *   "accessNode.api": "https://access-testnet.onflow.org",
- *   "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn",
- *   "0xProfile": "0xba1132bc08f82fe2"
- * });
- *
- * configuration.put('foo', 'bar');
- * configuration.get('foo').then(console.log); // ↵ "bar"
- * ```
- *
- * @param options - The initial configuration values.
- */
-export function config(options?: ConfigurationOptions): Configuration;
+  /**
+   * FCL has a mechanism that lets you configure various aspects of FCL. The
+   * main idea here (from an FCL perspective) should be that when you move from
+   * one instance of the Flow Blockchain to another (Local Emulator to Testnet
+   * to Mainnet) the only thing you should need to change (once again from an
+   * FCL perspective) is your configuration.
+   *
+   * ```typescript
+   * import * as fcl from "@onflow/fcl"
+   *
+   * const configuration = fcl.config({
+   *   "accessNode.api": "https://access-testnet.onflow.org",
+   *   "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn",
+   *   "0xProfile": "0xba1132bc08f82fe2"
+   * });
+   *
+   * configuration.put('foo', 'bar');
+   * configuration.get('foo').then(console.log); // ↵ "bar"
+   * ```
+   *
+   * @param options - The initial configuration values.
+   */
+  export function config(options?: ConfigurationOptions): Configuration;
 
-// WALLET INTERACTIONS
-/**
- * @see {@link https://github.com/onflow/fcl-discovery/blob/master/data/services.json}
- */
-export interface WalletService {
-    f_type: 'Service';
+  // WALLET INTERACTIONS
+  /**
+   * @see {@link https://github.com/onflow/fcl-discovery/blob/master/data/services.json}
+   */
+  export interface WalletService {
+    f_type: "Service";
     f_vsn: string;
-    type: 'authn';
+    type: "authn";
     method: string;
     uid: string;
     endpoint: string;
     provider: {
-        address: Address;
-        name: string;
-        icon: string;
-        description: string;
-        color: string;
-        supportEmail: string;
-        website: string;
+      address: Address;
+      name: string;
+      icon: string;
+      description: string;
+      color: string;
+      supportEmail: string;
+      website: string;
     };
-}
+  }
 
-export interface AuthenticateOptions {
+  export interface AuthenticateOptions {
     service: WalletService;
-}
+  }
 
-export function withPrefix(addr: string): string
-export function sansPrefix(addr: string): string
+  export function withPrefix(addr: string): string;
+  export function sansPrefix(addr: string): string;
 
-/**
- * Calling this method will authenticate the current user via any wallet that supports FCL.
- * Once called, FCL will initiate communication with the configured `discovery.wallet`
- * endpoint which lets the user select a wallet to authenticate with.
- * Once the wallet provider has authenticated the user, FCL will set the values on the
- * [current user object]{@link CurrentUserObject} for future use and authorization.
- *
- * @param options `authenticate` can also take a service returned from {@link discovery}
- *
- * @see {@link https://docs.onflow.org/fcl/reference/api/#authenticate}
- */
-export function authenticate(options?: AuthenticateOptions): void;
+  /**
+   * Calling this method will authenticate the current user via any wallet that supports FCL.
+   * Once called, FCL will initiate communication with the configured `discovery.wallet`
+   * endpoint which lets the user select a wallet to authenticate with.
+   * Once the wallet provider has authenticated the user, FCL will set the values on the
+   * [current user object]{@link CurrentUserObject} for future use and authorization.
+   *
+   * @param options `authenticate` can also take a service returned from {@link discovery}
+   *
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#authenticate}
+   */
+  export function authenticate(options?: AuthenticateOptions): void;
 
-// Ref: https://docs.onflow.org/fcl/reference/api/#unauthenticate
-/**
- * Logs out the current user and sets the values on the [current user object]{@link CurrentUserObject} to null.
- */
-export function unauthenticate(): void;
+  // Ref: https://docs.onflow.org/fcl/reference/api/#unauthenticate
+  /**
+   * Logs out the current user and sets the values on the [current user object]{@link CurrentUserObject} to null.
+   */
+  export function unauthenticate(): void;
 
-/**
- * A **convenience method** that calls {@link unauthenticate} and then {@link authenticate} for the current user.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#reauthenticate}
- */
-export function reauthenticate(): void;
+  /**
+   * A **convenience method** that calls {@link unauthenticate} and then {@link authenticate} for the current user.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#reauthenticate}
+   */
+  export function reauthenticate(): void;
 
-/**
- * A **convenience method** that calls and is equivalent to {@link authenticate}.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#signup}
- */
-export function signUp(): void;
+  /**
+   * A **convenience method** that calls and is equivalent to {@link authenticate}.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#signup}
+   */
+  export function signUp(): void;
 
-/**
- * A **convenience method** that calls and is equivalent to {@link authenticate}.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#login}
- */
-export function logIn(): void;
+  /**
+   * A **convenience method** that calls and is equivalent to {@link authenticate}.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#login}
+   */
+  export function logIn(): void;
 
-/**
- * A **convenience method** that produces the needed authorization details for the
- * current user to submit transactions to Flow. It defines a signing function that
- * connects to a user's wallet provider to produce signatures to submit transactions.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#authz}
- */
-export function authz(): AuthorizationObject;
+  /**
+   * A **convenience method** that produces the needed authorization details for the
+   * current user to submit transactions to Flow. It defines a signing function that
+   * connects to a user's wallet provider to produce signatures to submit transactions.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#authz}
+   */
+  export function authz(): AuthorizationObject;
 
-/**
- * Holds the [current user]{@link CurrentUserObject}, if set, and offers a set of
- * functions to manage the authentication and authorization of the user.
- */
-export function currentUser(): CurrentUserObject;
+  /**
+   * Holds the [current user]{@link CurrentUserObject}, if set, and offers a set of
+   * functions to manage the authentication and authorization of the user.
+   */
+  export function currentUser(): CurrentUserObject;
 
-export namespace currentUser {
+  export namespace currentUser {
     /**
      * @param callback The callback will be called with the [current user]{@link CurrentUserObject}
      * as the first argument when the current user is set or removed.
@@ -229,31 +229,31 @@ export namespace currentUser {
      * @see {@link https://docs.onflow.org/fcl/reference/api/#currentusersignusermessage}
      */
     function signUserMessage(message: string): Promise<CompositeSignature[]>;
-}
+  }
 
-/**
- * @see {@link https://github.com/onflow/fcl-js/blob/master/packages/fcl/src/wallet-provider-spec/draft-v2.md#compositesignature}
- */
-export interface CompositeSignature {
+  /**
+   * @see {@link https://github.com/onflow/fcl-js/blob/master/packages/fcl/src/wallet-provider-spec/draft-v2.md#compositesignature}
+   */
+  export interface CompositeSignature {
     f_type: string;
     f_vsn: string;
     addr: Address;
     keyId: number;
     signature: string;
-}
+  }
 
-/**
- * Discovery abstracts away code so that developers don't have to deal with the
- * discovery of Flow compatible wallets, integration, or authentication.
- * Using `discovery` from FCL allows dapps to list and authenticate with
- * wallets while having full control over the UI.
- * Common use cases for this are login or registration pages.
- * (Alternatively, if you don't need control over your UI you can
- * continue to use the `discovery.wallet` config value documented
- * in the Quickstart for the simplest configuration.)
- * @see {@link https://docs.onflow.org/fcl/reference/api/#discovery-1}
- */
-export namespace discovery {
+  /**
+   * Discovery abstracts away code so that developers don't have to deal with the
+   * discovery of Flow compatible wallets, integration, or authentication.
+   * Using `discovery` from FCL allows dapps to list and authenticate with
+   * wallets while having full control over the UI.
+   * Common use cases for this are login or registration pages.
+   * (Alternatively, if you don't need control over your UI you can
+   * continue to use the `discovery.wallet` config value documented
+   * in the Quickstart for the simplest configuration.)
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#discovery-1}
+   */
+  export namespace discovery {
     /**
      * By default, limited functionality services, like Ledger,
      * require apps to opt-in in order to display to users.
@@ -266,24 +266,26 @@ export namespace discovery {
      * @see {@link https://docs.onflow.org/fcl/reference/api/#authn}
      */
     namespace authn {
-        /**
-         * Return a list of `authn` services.
-         * @see {@link https://docs.onflow.org/fcl/reference/api/#discoveryauthnsnapshot}
-         */
-        function snapshot(): Promise<WalletService[]>;
+      /**
+       * Return a list of `authn` services.
+       * @see {@link https://docs.onflow.org/fcl/reference/api/#discoveryauthnsnapshot}
+       */
+      function snapshot(): Promise<WalletService[]>;
 
-        /**
-         * @param callback The callback sent to `subscribe` will be called with a list of `authn` services.
-         * @see {@link https://docs.onflow.org/fcl/reference/api/#discoveryauthnsubscribecallback}
-         */
-        // TODO: check syntax of param in https://github.com/onflow/fcl-js or with FCL dev team
-        function subscribe(callback: (res: { results: WalletService[] }) => void): void;
+      /**
+       * @param callback The callback sent to `subscribe` will be called with a list of `authn` services.
+       * @see {@link https://docs.onflow.org/fcl/reference/api/#discoveryauthnsubscribecallback}
+       */
+      // TODO: check syntax of param in https://github.com/onflow/fcl-js or with FCL dev team
+      function subscribe(
+        callback: (res: { results: WalletService[] }) => void
+      ): void;
     }
-}
+  }
 
-// ON-CHAIN INTERACTIONS
+  // ON-CHAIN INTERACTIONS
 
-export interface QueryOptions {
+  export interface QueryOptions {
     /**
      * A valid cadence script.
      */
@@ -298,16 +300,16 @@ export interface QueryOptions {
      * computation cost for information about how computation cost is calculated on Flow.
      */
     limit?: number;
-}
-/**
- * Allows you to submit scripts to query the blockchain.
- * @param options Pass in the following as a single object with the following keys.
- * All keys are optional unless otherwise stated.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#query}
- */
-export function query(options: QueryOptions): Promise<any>;
+  }
+  /**
+   * Allows you to submit scripts to query the blockchain.
+   * @param options Pass in the following as a single object with the following keys.
+   * All keys are optional unless otherwise stated.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#query}
+   */
+  export function query(options: QueryOptions): Promise<any>;
 
-export interface MutateOptions {
+  export interface MutateOptions {
     /**
      * A valid cadence transaction.
      */
@@ -325,231 +327,243 @@ export interface MutateOptions {
      * The authorization function that returns a valid {@link AuthorizationObject} for the proposer role.
      */
     proposer?: AuthorizationFunction;
-}
+  }
 
-/**
- * Allows you to submit transactions to the blockchain to potentially mutate the state.
- * ⚠️When being used in the browser, `fcl.mutate` uses the built-in `fcl.authz` function
- * to produce the authorization (signatures) for the current user.
- * When calling this method from Node.js, you will need to supply your own custom authorization function.
- * @param options
- * @returns The transaction ID.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#mutate}
- */
-export function mutate(options: MutateOptions): Promise<string>;
+  /**
+   * Allows you to submit transactions to the blockchain to potentially mutate the state.
+   * ⚠️When being used in the browser, `fcl.mutate` uses the built-in `fcl.authz` function
+   * to produce the authorization (signatures) for the current user.
+   * When calling this method from Node.js, you will need to supply your own custom authorization function.
+   * @param options
+   * @returns The transaction ID.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#mutate}
+   */
+  export function mutate(options: MutateOptions): Promise<string>;
 
-export interface CompositeSignatures {
+  export interface CompositeSignatures {
     f_type: string;
     f_vsn: string;
     addr: Address;
     keyId: string;
     signature: string;
-}
+  }
 
-/**
- * A method allowing applications to cryptographically verify the ownership of a
- * Flow account by verifying a message was signed by a user's private key/s.
- * This is typically used with the response from `currentUser.signUserMessage`.
- * @param message A hexadecimal string
- * @param compositeSignatures An Array of CompositeSignatures
- * @return true if verifed
- * @see {@link https://docs.onflow.org/fcl/reference/api/#verifyusersignatures}
- */
-export function verifyUserSignatures(message: string, compositeSignatures: CompositeSignatures[]): Promise<boolean>;
+  /**
+   * A method allowing applications to cryptographically verify the ownership of a
+   * Flow account by verifying a message was signed by a user's private key/s.
+   * This is typically used with the response from `currentUser.signUserMessage`.
+   * @param message A hexadecimal string
+   * @param compositeSignatures An Array of CompositeSignatures
+   * @return true if verifed
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#verifyusersignatures}
+   */
+  export function verifyUserSignatures(
+    message: string,
+    compositeSignatures: CompositeSignatures[]
+  ): Promise<boolean>;
 
-/**
- * Sends arbitrary scripts, transactions, and requests to Flow.
- * This method consumes an array of builders that are to be resolved and sent.
- * The builders required to be included in the array depend on the interaction that is being built.
- * @param builders
- * @returns An object containing the data returned from the chain.
- * Should always be decoded with `fcl.decode()` to get back appropriate JSON keys and values.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#send}
- */
-export function send(builders: Builders[]): Promise<ResponseObject>;
+  /**
+   * Sends arbitrary scripts, transactions, and requests to Flow.
+   * This method consumes an array of builders that are to be resolved and sent.
+   * The builders required to be included in the array depend on the interaction that is being built.
+   * @param builders
+   * @returns An object containing the data returned from the chain.
+   * Should always be decoded with `fcl.decode()` to get back appropriate JSON keys and values.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#send}
+   */
+  export function send(builders: Builders[]): Promise<ResponseObject>;
 
-/**
- * Decodes the response from `fcl.send()` into the appropriate JSON
- * representation of any values returned from Cadence code.
- * @param response Should be the response returned from `fcl.send([...])`
- * @returns A JSON representation of the raw string response depending on the cadence code executed.
- * The return value can be a single value and type or an object with multiple types.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#decode}
- */
-export function decode(response: ResponseObject): any;
+  /**
+   * Decodes the response from `fcl.send()` into the appropriate JSON
+   * representation of any values returned from Cadence code.
+   * @param response Should be the response returned from `fcl.send([...])`
+   * @returns A JSON representation of the raw string response depending on the cadence code executed.
+   * The return value can be a single value and type or an object with multiple types.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#decode}
+   */
+  export function decode(response: ResponseObject): any;
 
-/**
- * A builder function that returns the interaction to get an account by address.
- * ⚠️Consider using the pre-built interaction {@link account} if you do not need to pair with any other builders.
- * @param address Address of the user account with or without a prefix (both formats are supported).
- * @returns A JSON representation of a user account.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#getaccount}
- */
-export function getAccount(address: Address): AccountObject;
+  /**
+   * A builder function that returns the interaction to get an account by address.
+   * ⚠️Consider using the pre-built interaction {@link account} if you do not need to pair with any other builders.
+   * @param address Address of the user account with or without a prefix (both formats are supported).
+   * @returns A JSON representation of a user account.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#getaccount}
+   */
+  export function getAccount(address: Address): AccountObject;
 
-/**
- * A builder function that returns the interaction to get the latest block.
- * 📣 Use with {@link atBlockId} and {@link atBlockHeight} when building
- * the interaction to get information for older blocks.
- * ⚠️Consider using the pre-built interaction {@link latestBlock}
- * if you do not need to pair with any other builders.
- * @param isSealed If the latest block should be sealed or not.
- * @returns The latest block if not used with any other builders.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#getblock}
- */
-export function getBlock(isSealed?: boolean): BlockObject;
+  /**
+   * A builder function that returns the interaction to get the latest block.
+   * 📣 Use with {@link atBlockId} and {@link atBlockHeight} when building
+   * the interaction to get information for older blocks.
+   * ⚠️Consider using the pre-built interaction {@link latestBlock}
+   * if you do not need to pair with any other builders.
+   * @param isSealed If the latest block should be sealed or not.
+   * @returns The latest block if not used with any other builders.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#getblock}
+   */
+  export function getBlock(isSealed?: boolean): BlockObject;
 
-/**
- * A builder function that returns a partial interaction to a block at a specific height.
- * ⚠️Use with other interactions like {@link getBlock} to get a full interaction at the specified block height.
- * @param blockHeight The height of the block to execute the interaction at.
- * @returns A partial interaction to be paired with another interaction such as {@link getBlock} or {@link getAccount}.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#atblockheight}
- */
-export function atBlockHeight(blockHeight: number): Partial<Interaction>;
+  /**
+   * A builder function that returns a partial interaction to a block at a specific height.
+   * ⚠️Use with other interactions like {@link getBlock} to get a full interaction at the specified block height.
+   * @param blockHeight The height of the block to execute the interaction at.
+   * @returns A partial interaction to be paired with another interaction such as {@link getBlock} or {@link getAccount}.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#atblockheight}
+   */
+  export function atBlockHeight(blockHeight: number): Partial<Interaction>;
 
-/**
- * A builder function that returns a partial interaction to a block at a specific block ID.
- * ⚠️Use with other interactions like {@link getBlock} to get a full interaction at the specified block block ID.
- * @param blockId The ID of the block to execute the interaction at.
- * @returns A partial interaction to be paired with another interaction such as {@link getBlock} or {@link getAccount}.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#atblockid}
- */
-export function atBlockId(blockId: string): Partial<Interaction>;
+  /**
+   * A builder function that returns a partial interaction to a block at a specific block ID.
+   * ⚠️Use with other interactions like {@link getBlock} to get a full interaction at the specified block block ID.
+   * @param blockId The ID of the block to execute the interaction at.
+   * @returns A partial interaction to be paired with another interaction such as {@link getBlock} or {@link getAccount}.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#atblockid}
+   */
+  export function atBlockId(blockId: string): Partial<Interaction>;
 
-/**
- * A builder function that returns the interaction to get a block header.
- * 📣 Use with {@link atBlockId} and {@link atBlockHeight} when building
- * the interaction to get information for older blocks.
- * @returns The latest block header if not used with any other builders.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#getblockheader}
- */
-export function getBlockHeader(): BlockHeaderObject;
+  /**
+   * A builder function that returns the interaction to get a block header.
+   * 📣 Use with {@link atBlockId} and {@link atBlockHeight} when building
+   * the interaction to get information for older blocks.
+   * @returns The latest block header if not used with any other builders.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#getblockheader}
+   */
+  export function getBlockHeader(): BlockHeaderObject;
 
-/**
- * A builder function that returns all instances of a particular event (by name) within a height range.
- * ⚠️The block range provided must be from the current spork.
- * ⚠️The block range provided must be 250 blocks or lower per request.
- * @param eventName The name of the event.
- * @param fromBlockHeight The height of the block to start looking for events (inclusive).
- * @param toBlockHeight The height of the block to stop looking for events (inclusive).
- * @returns An array of events that matched the eventName.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#geteventsatblockheightrange}
- */
-export function getEventsAtBlockHeightRange(
+  /**
+   * A builder function that returns all instances of a particular event (by name) within a height range.
+   * ⚠️The block range provided must be from the current spork.
+   * ⚠️The block range provided must be 250 blocks or lower per request.
+   * @param eventName The name of the event.
+   * @param fromBlockHeight The height of the block to start looking for events (inclusive).
+   * @param toBlockHeight The height of the block to stop looking for events (inclusive).
+   * @returns An array of events that matched the eventName.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#geteventsatblockheightrange}
+   */
+  export function getEventsAtBlockHeightRange(
     eventName: EventName,
     fromBlockHeight: number,
-    toBlockHeight: number,
-): EventObject[];
+    toBlockHeight: number
+  ): EventObject[];
 
-/**
- * A builder function that returns all instances of a particular event (by name)
- * within a set of blocks, specified by block ids.
- * ⚠️The block range provided must be from the current spork.
- * @param eventName The name of the event.
- * @param blockIds The ids of the blocks to scan for events.
- * @returns An array of events that matched the eventName.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#geteventsatblockids}
- */
-export function getEventsAtBlockIds(eventName: EventName, blockIds: string[]): EventObject[];
+  /**
+   * A builder function that returns all instances of a particular event (by name)
+   * within a set of blocks, specified by block ids.
+   * ⚠️The block range provided must be from the current spork.
+   * @param eventName The name of the event.
+   * @param blockIds The ids of the blocks to scan for events.
+   * @returns An array of events that matched the eventName.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#geteventsatblockids}
+   */
+  export function getEventsAtBlockIds(
+    eventName: EventName,
+    blockIds: string[]
+  ): EventObject[];
 
-/**
- * A builder function that returns all a collection containing a list of transaction ids by its collection id.
- * ⚠️The block range provided must be from the current spork.
- * All events emitted during past sporks is current unavailable.
- * @param collectionID The id of the collection.
- * @returns An object with the id and a list of transactions within the requested collection.
- */
-export function getCollection(collectionID: string): CollectionObject;
+  /**
+   * A builder function that returns all a collection containing a list of transaction ids by its collection id.
+   * ⚠️The block range provided must be from the current spork.
+   * All events emitted during past sporks is current unavailable.
+   * @param collectionID The id of the collection.
+   * @returns An object with the id and a list of transactions within the requested collection.
+   */
+  export function getCollection(collectionID: string): CollectionObject;
 
-/**
- * A builder function that returns the status of transaction.
- * ⚠️The transactionID provided must be from the current spork.
- * 📣 Consider [subscribing to the transaction from fcl.tx(id)]{@link tx} instead of calling this method directly.
- * @param transactionId The transactionID returned when submitting a transaction. Example: 9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3
- * @see {@link https://docs.onflow.org/fcl/reference/api/#gettransactionstatus}
- */
-export function getTransactionStatus(transactionId: string): TransactionObject & {
+  /**
+   * A builder function that returns the status of transaction.
+   * ⚠️The transactionID provided must be from the current spork.
+   * 📣 Consider [subscribing to the transaction from fcl.tx(id)]{@link tx} instead of calling this method directly.
+   * @param transactionId The transactionID returned when submitting a transaction. Example: 9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#gettransactionstatus}
+   */
+  export function getTransactionStatus(
+    transactionId: string
+  ): TransactionObject & {
     /**
      * The status as as descriptive text (e.g. "FINALIZED").
      */
     statusString: string;
-};
+  };
 
-/**
- * A builder function that returns a {@link TransactionObject} once decoded.
- * ⚠️The transactionID provided must be from the current spork.
- * 📣 Consider using {@link tx} instead of calling this method directly.
- * @param transactionId The transactionID returned when submitting a transaction. Example: 9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3
- * @see {@link https://docs.onflow.org/fcl/reference/api/#gettransaction}
- */
-export function getTransaction(transactionId: string): TransactionObject;
+  /**
+   * A builder function that returns a {@link TransactionObject} once decoded.
+   * ⚠️The transactionID provided must be from the current spork.
+   * 📣 Consider using {@link tx} instead of calling this method directly.
+   * @param transactionId The transactionID returned when submitting a transaction. Example: 9dda5f281897389b99f103a1c6b180eec9dac870de846449a302103ce38453f3
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#gettransaction}
+   */
+  export function getTransaction(transactionId: string): TransactionObject;
 
-/**
- * A utility builder to be used with `fcl.args[...]` to create FCL supported arguments for interactions.
- * @param value Any value that you are looking to pass to other builders.
- * @param type A type supported by Flow.
- * @returns Holds the value and type passed in.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#arg}
- */
-export function arg(value: any, type: FType): ArgumentObject;
+  /**
+   * A utility builder to be used with `fcl.args[...]` to create FCL supported arguments for interactions.
+   * @param value Any value that you are looking to pass to other builders.
+   * @param type A type supported by Flow.
+   * @returns Holds the value and type passed in.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#arg}
+   */
+  export function arg(value: any, type: FType): ArgumentObject;
 
-/**
- * A utility builder to be used with other builders to pass in arguments with a value and supported type.
- * @param args An array of arguments that you are looking to pass to other builders.
- * @returns An interaction that contains the arguments and types passed in. This alone is a partial and incomplete interaction.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#args}
- */
-export function args(args: ArgumentObject[]): Partial<Interaction>;
+  /**
+   * A utility builder to be used with other builders to pass in arguments with a value and supported type.
+   * @param args An array of arguments that you are looking to pass to other builders.
+   * @returns An interaction that contains the arguments and types passed in. This alone is a partial and incomplete interaction.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#args}
+   */
+  export function args(args: ArgumentObject[]): Partial<Interaction>;
 
-/**
- * A template builder to use a Cadence script for an interaction.
- * 📣 Use with {@link args} to pass in arguments dynamically.
- * @param CODE Should be valid Cadence script.
- * @returns An interaction containing the code passed in.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#script}
- */
-export function script(CODE: string): Interaction;
+  /**
+   * A template builder to use a Cadence script for an interaction.
+   * 📣 Use with {@link args} to pass in arguments dynamically.
+   * @param CODE Should be valid Cadence script.
+   * @returns An interaction containing the code passed in.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#script}
+   */
+  export function script(CODE: string): Interaction;
 
-/**
- * A template builder to use a Cadence transaction for an interaction.
- * ⚠️Must be used with {@link payer}, {@link proposer}, {@link authorizations}
- * to produce a valid interaction before sending to the chain.
- * 📣 Use with {@link args} to pass in arguments dynamically.
- * @param CODE Should be valid a Cadence transaction.
- * @returns An partial interaction containing the code passed in.
- * Further builders are required to complete the interaction - see warning.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#transaction}
- */
-export function transaction(CODE: string): Partial<Interaction>;
+  /**
+   * A template builder to use a Cadence transaction for an interaction.
+   * ⚠️Must be used with {@link payer}, {@link proposer}, {@link authorizations}
+   * to produce a valid interaction before sending to the chain.
+   * 📣 Use with {@link args} to pass in arguments dynamically.
+   * @param CODE Should be valid a Cadence transaction.
+   * @returns An partial interaction containing the code passed in.
+   * Further builders are required to complete the interaction - see warning.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#transaction}
+   */
+  export function transaction(CODE: string): Partial<Interaction>;
 
-/**
- * A pre-built interaction that returns the details of an account from their public address.
- * @param address Address of the user account with or without a prefix (both formats are supported).
- * @see {@link https://docs.onflow.org/fcl/reference/api/#transaction}
- */
-export function account(address: Address): Promise<AccountObject>;
+  /**
+   * A pre-built interaction that returns the details of an account from their public address.
+   * @param address Address of the user account with or without a prefix (both formats are supported).
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#transaction}
+   */
+  export function account(address: Address): Promise<AccountObject>;
 
-/**
- * A pre-built interaction that returns the latest block (optionally sealed or not), by id, or by height.
- * @param sealed If the latest block should be sealed or not.
- * @param id ID of block to get.
- * @param height Height of block to get.
- * @returns A JSON representation of a block.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#block}
- */
-export function block(options?: { sealed?: boolean; id?: string; height?: number }): Promise<BlockObject>;
+  /**
+   * A pre-built interaction that returns the latest block (optionally sealed or not), by id, or by height.
+   * @param sealed If the latest block should be sealed or not.
+   * @param id ID of block to get.
+   * @param height Height of block to get.
+   * @returns A JSON representation of a block.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#block}
+   */
+  export function block(options?: {
+    sealed?: boolean;
+    id?: string;
+    height?: number;
+  }): Promise<BlockObject>;
 
-/**
- * A utility function that lets you set the transaction to get subsequent
- * status updates (via polling) and the finalized result once available.
- * The poll rate is set at 2500ms and will update at that interval until
- * transaction is sealed.
- *
- * @param transactionId A valid transaction id.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#tx}
- */
-export function tx(transactionId: string): {
+  /**
+   * A utility function that lets you set the transaction to get subsequent
+   * status updates (via polling) and the finalized result once available.
+   * The poll rate is set at 2500ms and will update at that interval until
+   * transaction is sealed.
+   *
+   * @param transactionId A valid transaction id.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#tx}
+   */
+  export function tx(transactionId: string): {
     /**
      * Returns the current state of the transaction.
      */
@@ -571,50 +585,50 @@ export function tx(transactionId: string): {
      * Provides the transaction once status 4 is returned.
      */
     onceSealed(): Promise<TransactionObject>;
-};
+  };
 
-/**
- * A utility function that lets you set the transaction to get subsequent status
- * updates (via polling) and the finalized result once available.
- * ⚠️The poll rate is set at 10000ms and will update at that interval for getting new events.
- * @param eventName A valid event name.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#events}
- */
-export function events(eventName: string): {
+  /**
+   * A utility function that lets you set the transaction to get subsequent status
+   * updates (via polling) and the finalized result once available.
+   * ⚠️The poll rate is set at 10000ms and will update at that interval for getting new events.
+   * @param eventName A valid event name.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#events}
+   */
+  export function events(eventName: string): {
     /**
      * Calls the callback passed in with the new event.
      */
     subscribe(callback: (tx: EventObject) => void): void;
-};
+  };
 
-// TYPES, INTERFACES, AND DEFINITIONS
-// TODO: How to better leverage TypeScript to say that Builders us the union of all builder methods:
-// getAccount, getBlock, atBlockHeight, atBlockId, getBlockHeader, getEventsAtBlockHeightRange, getEventsAtBlockIds,
-// getCollection, getTransactionStatus, getTransaction, arg, script, transaction, account, block
-/**
- * Builders are modular functions that can be coupled together with `fcl.send([...builders])``
- * to create an {@link Interaction}. The builders needed to create an interaction
- * depend on the script or transaction that is being sent.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#builders-1}
- */
-export type Builders = any;
+  // TYPES, INTERFACES, AND DEFINITIONS
+  // TODO: How to better leverage TypeScript to say that Builders us the union of all builder methods:
+  // getAccount, getBlock, atBlockHeight, atBlockId, getBlockHeader, getEventsAtBlockHeightRange, getEventsAtBlockIds,
+  // getCollection, getTransactionStatus, getTransaction, arg, script, transaction, account, block
+  /**
+   * Builders are modular functions that can be coupled together with `fcl.send([...builders])``
+   * to create an {@link Interaction}. The builders needed to create an interaction
+   * depend on the script or transaction that is being sent.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#builders-1}
+   */
+  export type Builders = any;
 
-// TODO: Double check with FCL dev team if Interaction needs to be added from https://github.com/onflow/fcl-js/blob/master/packages/sdk/src/interaction/interaction.js#L66
-/**
- * An interaction is an object containing the information to perform an action on chain.
- * This object is populated through builders and converted into the approriate access node API call.
- * A 'partial' interaction is an interaction object that does not have sufficient
- * information to the intended on-chain action. Multiple partial interactions (through builders)
- * can be coupled to create a complete interaction.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#interaction}
- * @see {@link https://github.com/onflow/fcl-js/blob/master/packages/sdk/src/interaction/interaction.js#L66}
- */
-export type Interaction = object;
+  // TODO: Double check with FCL dev team if Interaction needs to be added from https://github.com/onflow/fcl-js/blob/master/packages/sdk/src/interaction/interaction.js#L66
+  /**
+   * An interaction is an object containing the information to perform an action on chain.
+   * This object is populated through builders and converted into the approriate access node API call.
+   * A 'partial' interaction is an interaction object that does not have sufficient
+   * information to the intended on-chain action. Multiple partial interactions (through builders)
+   * can be coupled to create a complete interaction.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#interaction}
+   * @see {@link https://github.com/onflow/fcl-js/blob/master/packages/sdk/src/interaction/interaction.js#L66}
+   */
+  export type Interaction = object;
 
-/**
- * @see {@link https://docs.onflow.org/fcl/reference/api/#currentuserobject}
- */
-export interface CurrentUserObject {
+  /**
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#currentuserobject}
+   */
+  export interface CurrentUserObject {
     /**
      * The public address of the current user
      */
@@ -644,19 +658,19 @@ export interface CurrentUserObject {
      * including means to further discovery, authentication, authorization, or other kinds of interactions.
      */
     services: object[];
-}
+  }
 
-/**
- * An authorization function must produce the information of the user that is going
- * to sign and a signing function to use the information to produce a signature.
- *
- * 📣 By default FCL exposes `fcl.authz` that produces the authorization object
- * for the current user (given they are signed in and only on the browser).
- * Replace this with your own function that conforms to this interface to
- * use it wherever an authorization object is needed.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#authorizationobject}
- */
-export interface AuthorizationObject {
+  /**
+   * An authorization function must produce the information of the user that is going
+   * to sign and a signing function to use the information to produce a signature.
+   *
+   * 📣 By default FCL exposes `fcl.authz` that produces the authorization object
+   * for the current user (given they are signed in and only on the browser).
+   * Replace this with your own function that conforms to this interface to
+   * use it wherever an authorization object is needed.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#authorizationobject}
+   */
+  export interface AuthorizationObject {
     /**
      * The address of the authorizer
      */
@@ -673,13 +687,13 @@ export interface AuthorizationObject {
      * A number that is incremented per transaction using they keyId.
      */
     sequenceNum: number;
-}
+  }
 
-/**
- * An object that contains all the information needed for FCL to sign a message with the user's signature.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#signableobject}
- */
-export interface SignableObject {
+  /**
+   * An object that contains all the information needed for FCL to sign a message with the user's signature.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#signableobject}
+   */
+  export interface SignableObject {
     /**
      * The address of the authorizer
      */
@@ -692,13 +706,13 @@ export interface SignableObject {
      * A {@link SigningFunction} that can produce a valid signature for a user from a message.
      */
     signature: SigningFunction;
-}
+  }
 
-/**
- * The JSON representation of an account on the Flow blockchain.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#accountobject}
- */
-export interface AccountObject {
+  /**
+   * The JSON representation of an account on the Flow blockchain.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#accountobject}
+   */
+  export interface AccountObject {
     /**
      * The address of the account
      */
@@ -719,18 +733,18 @@ export interface AccountObject {
      * Any contracts deployed to this account.
      */
     keys: KeyObject[];
-}
+  }
 
-/**
- * @see {@link https://docs.onflow.org/fcl/reference/api/#address}
- */
-export type Address = string;
+  /**
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#address}
+   */
+  export type Address = string;
 
-/**
- * An argument object created by `fcl.arg(value,type)`
- * @see {@link https://docs.onflow.org/fcl/reference/api/#argumentobject}
- */
-export interface ArgumentObject {
+  /**
+   * An argument object created by `fcl.arg(value,type)`
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#argumentobject}
+   */
+  export interface ArgumentObject {
     /**
      * Any value to be used as an argument to a builder.
      */
@@ -739,32 +753,37 @@ export interface ArgumentObject {
      * Any of the supported types on Flow.
      */
     xform: FType;
-}
+  }
 
-/**
- * An function that takes the `fcl.arg` function and fcl types `t`
- * and returns an array of `fcl.arg(value,type)`.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#argumentfunction}
- */
-export type ArgumentFunction = (arg: (value: any, xform: FType) => ArgumentObject, t: FType) => ArgumentObject[];
+  /**
+   * An function that takes the `fcl.arg` function and fcl types `t`
+   * and returns an array of `fcl.arg(value,type)`.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#argumentfunction}
+   */
+  export type ArgumentFunction = (
+    arg: (value: any, xform: FType) => ArgumentObject,
+    t: FType
+  ) => ArgumentObject[];
 
-/**
- * An authorization function must produce the information of the user that
- * is going to sign and a signing function to use the information to produce a signature.
- * 📣 By default FCL exposes `fcl.authz` that produces the authorization object
- * for the current user (given they are signed in and only on the browser).
- * Replace this with your own function that conforms to this interface
- * to use it wherever an authorization object is needed.
- * @param account The account of the user that is going to sign.
- * @returns The object that contains all the information needed by FCL to authorize a user's transaction.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#authorization-function}
- */
-export type AuthorizationFunction = (account: AccountObject) => Promise<AuthorizationObject>;
+  /**
+   * An authorization function must produce the information of the user that
+   * is going to sign and a signing function to use the information to produce a signature.
+   * 📣 By default FCL exposes `fcl.authz` that produces the authorization object
+   * for the current user (given they are signed in and only on the browser).
+   * Replace this with your own function that conforms to this interface
+   * to use it wherever an authorization object is needed.
+   * @param account The account of the user that is going to sign.
+   * @returns The object that contains all the information needed by FCL to authorize a user's transaction.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#authorization-function}
+   */
+  export type AuthorizationFunction = (
+    account: AccountObject
+  ) => Promise<AuthorizationObject>;
 
-/**
- * @see {@link https://docs.onflow.org/fcl/reference/api/#payload}
- */
-export interface SigningPayload {
+  /**
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#payload}
+   */
+  export interface SigningPayload {
     /**
      * The encoded string which needs to be used to produce the signature.
      */
@@ -786,18 +805,20 @@ export interface SigningPayload {
      * for additional safety and lack of trust in the supplied message.
      */
     voucher: object;
-}
+  }
 
-/**
- * Consumes a payload and produces a signature for a transaction.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#signing-function}
- */
-export type SigningFunction = (options: SigningPayload) => Promise<SignableObject>;
+  /**
+   * Consumes a payload and produces a signature for a transaction.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#signing-function}
+   */
+  export type SigningFunction = (
+    options: SigningPayload
+  ) => Promise<SignableObject>;
 
-/**
- * @see {@link https://docs.onflow.org/fcl/reference/api/#transactionrolesobject}
- */
-export interface TransactionRolesObject {
+  /**
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#transactionrolesobject}
+   */
+  export interface TransactionRolesObject {
     /**
      * A Boolean representing if this signature to be produced for a proposer.
      */
@@ -810,40 +831,40 @@ export interface TransactionRolesObject {
      * A Boolean representing if this signature to be produced for a payer.
      */
     payer: boolean;
-}
+  }
 
-/**
- * A event name in Flow must follow the format `A.{AccountAddress}.{ContractName}.{EventName}`
- * eg. `A.ba1132bc08f82fe2.Debug.Log`
- * @see {@link https://docs.onflow.org/fcl/reference/api/#eventname}
- */
-export type EventName = string;
+  /**
+   * A event name in Flow must follow the format `A.{AccountAddress}.{ContractName}.{EventName}`
+   * eg. `A.ba1132bc08f82fe2.Debug.Log`
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#eventname}
+   */
+  export type EventName = string;
 
-/**
- * A formatted string that is a valid cadence contract.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#contract}
- */
-export type Contract = string;
+  /**
+   * A formatted string that is a valid cadence contract.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#contract}
+   */
+  export type Contract = string;
 
-/**
- * @see {@link https://github.com/onflow/fcl-js/blob/9cf62bfaabb02444e6daa24b1ee10faeed40f732/packages/util-encode-key/src/index.js#L4}
- */
-export enum Curve {
+  /**
+   * @see {@link https://github.com/onflow/fcl-js/blob/9cf62bfaabb02444e6daa24b1ee10faeed40f732/packages/util-encode-key/src/index.js#L4}
+   */
+  export enum Curve {
     ECDSA_P256 = 2,
     ECDSA_secp256k1 = 3,
-}
-/**
- * @see {@link https://github.com/onflow/fcl-js/blob/9cf62bfaabb02444e6daa24b1ee10faeed40f732/packages/util-encode-key/src/index.js#L9}
- */
-export enum Hash {
+  }
+  /**
+   * @see {@link https://github.com/onflow/fcl-js/blob/9cf62bfaabb02444e6daa24b1ee10faeed40f732/packages/util-encode-key/src/index.js#L9}
+   */
+  export enum Hash {
     SHA2_256 = 1,
     SHA3_256 = 3,
-}
-/**
- * This is the JSON representation of a key on the Flow blockchain.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#keyobject}
- */
-export interface KeyObject {
+  }
+  /**
+   * This is the JSON representation of a key on the Flow blockchain.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#keyobject}
+   */
+  export interface KeyObject {
     /**
      * The address of the account
      */
@@ -858,8 +879,8 @@ export interface KeyObject {
      */
     hashAlgo: Hash;
 
-    signAlgoString: string,
-    hashAlgoString: string,
+    signAlgoString: string;
+    hashAlgoString: string;
     /**
      * A number between 1 and 1000 indicating the relative weight to other keys on the account.
      */
@@ -872,16 +893,16 @@ export interface KeyObject {
      * If this key has been disabled for use.
      */
     revoked: boolean;
-}
+  }
 
-// TODO: Double check with FCL dev team where I can find types for SealedBlockObject (they are absent from docs https://docs.onflow.org/fcl/reference/api/#blockobject)
-export type SealedBlockObject = object;
+  // TODO: Double check with FCL dev team where I can find types for SealedBlockObject (they are absent from docs https://docs.onflow.org/fcl/reference/api/#blockobject)
+  export type SealedBlockObject = object;
 
-/**
- * The JSON representation of a key on the Flow blockchain.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#blockobject}
- */
-export type BlockObject = BlockHeaderObject & {
+  /**
+   * The JSON representation of a key on the Flow blockchain.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#blockobject}
+   */
+  export type BlockObject = BlockHeaderObject & {
     /**
      * Contains the ids of collections included in the block.
      */
@@ -894,13 +915,13 @@ export type BlockObject = BlockHeaderObject & {
      * All signatures.
      */
     signatures: number[];
-};
+  };
 
-/**
- * The subset of the {@link BlockObject} containing only the header values of a block.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#blockheaderobject}
- */
-export interface BlockHeaderObject {
+  /**
+   * The subset of the {@link BlockObject} containing only the header values of a block.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#blockheaderobject}
+   */
+  export interface BlockHeaderObject {
     /**
      * The id of the block.
      */
@@ -917,13 +938,13 @@ export interface BlockHeaderObject {
      * Contains time related fields.
      */
     timestamp: object;
-}
+  }
 
-/**
- * A collection that has been included in a block.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#collectionguaranteeobject}
- */
-export interface CollectionGuaranteeObject {
+  /**
+   * A collection that has been included in a block.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#collectionguaranteeobject}
+   */
+  export interface CollectionGuaranteeObject {
     /**
      * The id of the block.
      */
@@ -932,13 +953,13 @@ export interface CollectionGuaranteeObject {
      * All signatures.
      */
     signatures: SignableObject[];
-}
+  }
 
-/**
- * A collection is a list of transactions that are contained in the same block.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#collectionobject}
- */
-export interface CollectionObject {
+  /**
+   * A collection is a list of transactions that are contained in the same block.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#collectionobject}
+   */
+  export interface CollectionObject {
     /**
      * The id of the collection.
      */
@@ -947,9 +968,9 @@ export interface CollectionObject {
      * The ids of the transactions included in the collection.
      */
     transactionIds: string[];
-}
+  }
 
-interface Signature {
+  interface Signature {
     /**
      * Sequence number of the key used to perform this signature
      */
@@ -962,70 +983,70 @@ interface Signature {
      * The signature
      */
     signature: string;
-}
+  }
 
-/**
- * The format of all responses in FCL returned from `fcl.send(...)`.
- * For full details on the values and descriptions of the keys, view here.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#responseobject}
- * @see {@link https://github.com/onflow/fcl-js/tree/master/packages/sdk/src/response#internal-properties}
- */
-export interface ResponseObject {
+  /**
+   * The format of all responses in FCL returned from `fcl.send(...)`.
+   * For full details on the values and descriptions of the keys, view here.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#responseobject}
+   * @see {@link https://github.com/onflow/fcl-js/tree/master/packages/sdk/src/response#internal-properties}
+   */
+  export interface ResponseObject {
     /**
      * A marker that represents the type of the response. See {@link Interaction} for information on the possible tag values.
      */
     tag: number;
     transaction: {
+      /**
+       * The Cadence code used to execute this transaction
+       */
+      script: string;
+      /**
+       * The arguments passed in to the transaction
+       */
+      args: string[];
+      /**
+       * The reference block id for this transaction
+       */
+      referenceBlockId: string;
+      /**
+       * The gas limit for the transaction
+       */
+      gasLimit: number;
+      proposalKey: {
         /**
-         * The Cadence code used to execute this transaction
-         */
-        script: string;
-        /**
-         * The arguments passed in to the transaction
-         */
-        args: string[];
-        /**
-         * The reference block id for this transaction
-         */
-        referenceBlockId: string;
-        /**
-         * The gas limit for the transaction
-         */
-        gasLimit: number;
-        proposalKey: {
-            /**
              Sequence number of key used by the proposer of this transaction
               */
-            sequenceNumber: string;
-            /**
+        sequenceNumber: string;
+        /**
              The ID of the key in the account used by the proposer of this transaction
               */
-            keyId: number;
-            /**
+        keyId: number;
+        /**
              The address of the proposer of this transaction
               */
-            address: Address;
-        };
-        /**
-         * Address of the payer of the transaction
-         */
-        payer: Address;
-        /**
-         * Address of the proposer of this transaction
-         */
-        proposer: Address;
-        /**
-         * Array of addresses of authorizers of this transaction
-         */
-        authorizers: Address[];
-        /**
-         * The payload signatures for the transaction
-         */
-        payloadSignatures: Signature[];
-        /**
-         * The envelope signtaures for the transaction
-         */
-        envelopeSignatures: Signature[];
+        address: Address;
+      };
+      /**
+       * Address of the payer of the transaction
+       */
+      payer: Address;
+      /**
+       * Address of the proposer of this transaction
+       */
+      proposer: Address;
+      /**
+       * Array of addresses of authorizers of this transaction
+       */
+      authorizers: Address[];
+      /**
+       * The payload signatures for the transaction
+       */
+      payloadSignatures: Signature[];
+      /**
+       * The envelope signtaures for the transaction
+       */
+      envelopeSignatures: Signature[];
     };
     /**
      * The response from {@link getTransactionStatus} request.
@@ -1043,44 +1064,44 @@ export interface ResponseObject {
      * The events returned from a GetEvents request.
      */
     events: {
+      /**
+       * The results returned from a GetEvents request
+       */
+      results: {
         /**
-         * The results returned from a GetEvents request
+         * The block id of this result
          */
-        results: {
-            /**
-             * The block id of this result
-             */
-            blockId: number;
-            /**
-             * The block height of this result
-             */
-            blockHeight: number;
-            /**
-             * The events for this result
-             */
-            events: {
-                /**
-                 * The type of this event
-                 */
-                type: string;
-                /**
-                 * The transactionId of this event
-                 */
-                transactionId: number;
-                /**
-                 * The transactionIndex of this event
-                 */
-                transactionIndex: number;
-                /**
-                 * The index of this event
-                 */
-                eventIndex: number;
-                /**
-                 * The encoded JSON-CDC payload of this event.
-                 */
-                payload: Uint8Array;
-            }[];
+        blockId: number;
+        /**
+         * The block height of this result
+         */
+        blockHeight: number;
+        /**
+         * The events for this result
+         */
+        events: {
+          /**
+           * The type of this event
+           */
+          type: string;
+          /**
+           * The transactionId of this event
+           */
+          transactionId: number;
+          /**
+           * The transactionIndex of this event
+           */
+          transactionIndex: number;
+          /**
+           * The index of this event
+           */
+          eventIndex: number;
+          /**
+           * The encoded JSON-CDC payload of this event.
+           */
+          payload: Uint8Array;
         }[];
+      }[];
     };
     /**
      *  The account returned from a {@link getAccount} request.
@@ -1098,12 +1119,12 @@ export interface ResponseObject {
      * The collection returned from a {@link getCollection} request
      */
     collection: CollectionObject;
-}
+  }
 
-/**
- * @see {@link https://docs.onflow.org/fcl/reference/api/#event-object}
- */
-export interface EventObject {
+  /**
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#event-object}
+   */
+  export interface EventObject {
     /**
      * ID of the block that contains the event.
      */
@@ -1137,14 +1158,14 @@ export interface EventObject {
      * The data emitted from the event.
      */
     data: Record<string, unknown>;
-}
+  }
 
-/**
- * The status of a transaction will depend on the Flow blockchain network and which
- * phase it is in as it completes and is finalized.
- * @see {@link https://docs.onflow.org/fcl/reference/api/#transaction-statuses}
- */
-export enum TransactionStatusCode {
+  /**
+   * The status of a transaction will depend on the Flow blockchain network and which
+   * phase it is in as it completes and is finalized.
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#transaction-statuses}
+   */
+  export enum TransactionStatusCode {
     UNKNOWN = 0,
     /**
      * Transaction Pending - Awaiting Finalization
@@ -1167,13 +1188,13 @@ export enum TransactionStatusCode {
      * Transaction Expired
      */
     EXPIRED = 5,
-}
+  }
 
-/**
- * The access node GRPC implementation follows the standard GRPC Core status code spec.
- * @see {@link https://grpc.github.io/grpc/core/md_doc_statuscodes.html}
- */
-export enum GRPCStatus {
+  /**
+   * The access node GRPC implementation follows the standard GRPC Core status code spec.
+   * @see {@link https://grpc.github.io/grpc/core/md_doc_statuscodes.html}
+   */
+  export enum GRPCStatus {
     /**
      *  Not an error; returned on success.
      */
@@ -1296,16 +1317,16 @@ export enum GRPCStatus {
      * credentials for the operation.
      */
     UNAUTHENTICATED = 16,
-}
+  }
 
-// TODO: How to better leverage Typescript here?
-// when writing `t.String`, given `t` is a `FType`, I want auto-completion on all different types
-// but `String` is a value that FType can take, it is not of type `any` per say.
-// but I don't know enough TS to find the right pattern here.
-/**
- * @see {@link https://docs.onflow.org/fcl/reference/api/#ftype}
- */
-export interface FType {
+  // TODO: How to better leverage Typescript here?
+  // when writing `t.String`, given `t` is a `FType`, I want auto-completion on all different types
+  // but `String` is a value that FType can take, it is not of type `any` per say.
+  // but I don't know enough TS to find the right pattern here.
+  /**
+   * @see {@link https://docs.onflow.org/fcl/reference/api/#ftype}
+   */
+  export interface FType {
     UInt: any;
     UInt8: any;
     UInt16: any;
@@ -1334,9 +1355,9 @@ export interface FType {
     Array: any;
     Dictionary: any;
     Path: any;
-}
+  }
 
-export interface TransactionObject {
+  export interface TransactionObject {
     /**
      * An array of events that were emitted during the transaction.
      */
@@ -1353,5 +1374,5 @@ export interface TransactionObject {
      * The status from the GRPC response.
      */
     statusCode: GRPCStatus;
-}
+  }
 }
