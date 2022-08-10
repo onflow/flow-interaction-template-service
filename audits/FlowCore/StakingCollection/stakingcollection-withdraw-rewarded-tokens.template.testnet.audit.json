@@ -1,0 +1,14 @@
+{
+  "f_type": "InteractionTemplateAudit",
+  "f_version": "1.0.0",
+  "id": "0ccf693954481eda9edd5610a5340f3614760b2226cd95a83e1439e1bd49d79d",
+  "data": {
+    "id": "6b2739fc0b8114047180badbee699fe6a5d4fb3b74753c35c4f170c30572db1b",
+    "signer": {
+      "network": "testnet",
+      "address": "0xf78bfc12d0a786dc",
+      "key_id": 0,
+      "signature": "6c62dd222b90d1d8862516fb0f90121bffb511ffbead322a4bafdab978e1198c8657e35558bd9f416f3ea6a676ca7f78c5cb0fa132b736a935b9fd413b6eae20"
+    }
+  }
+}

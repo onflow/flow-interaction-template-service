@@ -9,6 +9,11 @@ function revocationRouter(revocationService: RevocationService): Router {
   router.get("/revocations", async (req: Request, res: Response) => {
     const auditId = req.query.audit_id as string;
 
+    if (!auditId) {
+      res.status(400);
+      return res.send("GET /revocations -- 'audit_id' query param not found");
+    }
+
     let revoked;
     try {
       revoked = await revocationService.getRevocation(auditId);

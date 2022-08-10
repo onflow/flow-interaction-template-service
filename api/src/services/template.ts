@@ -67,7 +67,7 @@ class TemplateService {
   }
 
   async seed() {
-    const templates = await readFiles(this.config.templateDir + "/*.json");
+    const templates = await readFiles(this.config.templateDir);
 
     await Template.query().del();
 

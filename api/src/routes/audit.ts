@@ -37,7 +37,7 @@ function auditRouter(auditService: AuditService): Router {
         );
       }
 
-      if (!audits) {
+      if (!audits || audits.length === 0) {
         res.status(204);
         return res.send(
           `GET /audits -- Did not find audits for template_id=${templateId} signer_network=${signerNetwork}`
@@ -67,7 +67,7 @@ function auditRouter(auditService: AuditService): Router {
         );
       }
 
-      return res.send(audit);
+      return res.send([audit]);
     }
   });
 

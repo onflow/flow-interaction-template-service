@@ -68,7 +68,7 @@ class AuditService {
   }
 
   async seed() {
-    const audits = await readFiles(this.config.auditDir + "/*.json");
+    const audits = await readFiles(this.config.auditDir);
 
     await Audit.query().del();
 
