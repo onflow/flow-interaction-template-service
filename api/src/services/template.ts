@@ -88,10 +88,13 @@ class TemplateService {
           });
 
         const recomputedTemplateID =
-          fcl.InteractionTemplateUtils.generateTemplateId({
-            template,
+          await fcl.InteractionTemplateUtils.generateTemplateId({
+            template: parsedTemplate,
           });
-        if (recomputedTemplateID !== parsedTemplate.id) throw new Error();
+        if (recomputedTemplateID !== parsedTemplate.id)
+          throw new Error(
+            `recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`
+          );
 
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
