@@ -1,7 +1,7 @@
 {
   "f_type": "InteractionTemplate",
-  "f_vsn": "1.0.0",
-  "id": "180bafa9845bacdbe2bae5bc6bfac2686c3007fe8e9e496ca81541151cd1c3f8",
+  "f_version": "1.0.0",
+  "id": "ac864a47c36182a1ef29fda5680a45ef5c750543409abc4310b1ef962e1cf128",
   "data": {
     "type": "transaction",
     "interface": "",
