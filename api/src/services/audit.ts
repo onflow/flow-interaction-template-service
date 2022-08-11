@@ -76,10 +76,11 @@ class AuditService {
 
     return foundAudits
       ? foundAudits.map((foundAudit) => {
-          if (typeof foundAudit === "string") {
-            return JSON.parse(foundAudit);
+          let foundAuditJson = foundAudit?.json_string || null;
+          if (typeof foundAuditJson === "string") {
+            return JSON.parse(foundAuditJson);
           } else {
-            return foundAudit;
+            return foundAuditJson;
           }
         })
       : null;
