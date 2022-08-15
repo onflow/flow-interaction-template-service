@@ -5,9 +5,7 @@ import yargs from "yargs/yargs";
 import initApp from "./app";
 import { getConfig } from "./config";
 import initDB from "./db";
-import { AuditService } from "./services/audit";
 import { TemplateService } from "./services/template";
-import { RevocationService } from "./services/revocation";
 
 const argv = yargs(hideBin(process.argv)).argv;
 const DEV = argv.dev;
@@ -51,20 +49,12 @@ async function run() {
   const startAPIServer = async () => {
     console.log("Starting API server ....");
     const templateService = new TemplateService(config);
-    const auditService = new AuditService(config);
-    const revocationService = new RevocationService(config);
 
     console.log("...Seeding TemplateService...");
     await templateService.seed();
     console.log("Seeded TemplateService!");
-    console.log("...Seeding AuditService...");
-    await auditService.seed();
-    console.log("Seeded AuditService!");
-    console.log("...Seeding RevokedService...");
-    await revocationService.seed();
-    console.log("Seeded RevokedService!");
 
-    const app = initApp(auditService, templateService, revocationService);
+    const app = initApp(templateService);
 
     app.listen(config.port, () => {
       console.log(`Listening on port ${config.port}!`);
