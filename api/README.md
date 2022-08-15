@@ -1,3 +1,3 @@
 ## Audits
 
-Host `InteractionTemplate` and `InteractionTemplateAudit` using this API.
+### Host `InteractionTemplate` using this API.

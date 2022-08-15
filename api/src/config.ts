@@ -1,5 +1,5 @@
 const defaultPort = 3000;
-const defaultMigrationPath = "./src/migrations";
+const defaultMigrationPath = "./dist/migrations";
 
 export function getConfig(env) {
   env = env ?? process.env;
@@ -13,14 +13,10 @@ export function getConfig(env) {
 
   const databaseMigrationPath = env.MIGRATION_PATH || defaultMigrationPath;
 
-  const auditDir = env.AUDIT_DIR;
   const templateDir = env.TEMPLATE_DIR;
-
-  const revokedJsonFile = env.REVOKED_FILE;
 
   console.log("ENV: ", env);
   console.log("accessApi", accessApi);
-  console.log("revokedJsonFile: ", revokedJsonFile);
   console.log("databaseMigrationPath: ", databaseMigrationPath);
 
   return {
@@ -29,8 +25,6 @@ export function getConfig(env) {
     dbPath,
     databaseMigrationPath,
     databaseUrl,
-    auditDir,
     templateDir,
-    revokedJsonFile,
   };
 }
