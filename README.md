@@ -23,11 +23,13 @@ The `./api` folder of this repository contains an API which can be run, and make
 With the API you can query Interaction Template by their ID:
 
 ```
-GET /v1/templates/${template_id} => Interaction Template
+GET /v1/templates/${template_id}
+  => Interaction Template
 ```
 
 You can also query for Interaction Template by their cadence body:
 
 ```
 GET /v1/templates?cadence={base_64_encoded_cadence}&network={'mainnet' | 'testnet'}
+  => Interaction Template
 ```
