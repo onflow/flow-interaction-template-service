@@ -4,7 +4,7 @@ This Flow Interaction Template Service provides a way to propose, store and host
 
 ## 📖 Overview
 
-This repository is a place to developers to propose their Interaction Templates to be audited, and where Interaction Tempaltes can be stored and hosted by the provided API.
+This repository is a place for developers to propose their Interaction Templates to be audited, and where Interaction Templates can be stored and hosted by the provided API.
 
 ## 💡 Propose Interaction Template
 
