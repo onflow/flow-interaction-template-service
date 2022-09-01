@@ -30,6 +30,10 @@ GET /v1/templates/${template_id}
 You can also query for Interaction Template by their cadence body:
 
 ```
-GET /v1/templates?cadence={base_64_encoded_cadence}&network={'mainnet' | 'testnet'}
+POST /v1/templates/search
+  body (JSON): {
+    cadence_base64: "...",
+    network: "..." (mainnet | testnet)
+  }
   => Interaction Template
 ```
