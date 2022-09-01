@@ -5,8 +5,8 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("templates", async (table) => {
     table.string("id").primary();
     table.json("json_string");
-    table.text("mainnet_cadence");
-    table.text("testnet_cadence");
+    table.text("mainnet_cadence_sha3_256_hash");
+    table.text("testnet_cadence_sha3_256_hash");
     table.timestamps(true, true);
   });
 }

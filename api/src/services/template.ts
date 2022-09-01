@@ -1,6 +1,7 @@
 import * as fcl from "@onflow/fcl";
 import { Template } from "../models/template";
 import { readFiles } from "../utils/read-files";
+import { genHash } from "../utils/gen-hash";
 
 class TemplateService {
   config: any;
@@ -40,19 +41,19 @@ class TemplateService {
     return foundTemplateJson;
   }
 
-  async getTemplateByCadence(base64Cadence: string, network: string) {
+  async getTemplateByCadence(cadenceHash: string, network: string) {
     let foundTemplate: Template | null = null;
 
     if (network === "mainnet") {
       foundTemplate = (
         await Template.query().where({
-          mainnet_cadence: base64Cadence,
+          mainnet_cadence_sha3_256_hash: cadenceHash,
         })
       )[0];
     } else if (network === "testnet") {
       foundTemplate = (
         await Template.query().where({
-          testnet_cadence: base64Cadence,
+          testnet_cadence_sha3_256_hash: cadenceHash,
         })
       )[0];
     }
@@ -99,8 +100,8 @@ class TemplateService {
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
           json_string: template.content,
-          mainnet_cadence: Buffer.from(mainnet_cadence).toString("base64"),
-          testnet_cadence: Buffer.from(testnet_cadence).toString("base64"),
+          mainnet_cadence_sha3_256_hash: await genHash(mainnet_cadence),
+          testnet_cadence_sha3_256_hash: await genHash(testnet_cadence),
         });
       } catch (e) {
         console.warn(`Skipping template ${template.path} error=${e}`);
