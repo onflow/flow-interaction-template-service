@@ -3,6 +3,7 @@ import { body } from "express-validator";
 import { validateRequest } from "../middlewares/validate-request";
 import { TemplateService } from "../services/template";
 import { genHash } from "../utils/gen-hash";
+import { mixpanelTrack } from "../utils/mixpanel";
 
 function templateRouter(templateService: TemplateService): Router {
   const router = express.Router();
@@ -13,11 +14,21 @@ function templateRouter(templateService: TemplateService): Router {
     const template = await templateService.getTemplate(templateId);
 
     if (!template) {
+      mixpanelTrack("get_template", {
+        templateId,
+        status: 204,
+      });
+
       res.status(204);
       return res.send(
         `GET /templates/:template_id -- Did not find template for template_id=${templateId}`
       );
     }
+
+    mixpanelTrack("get_template", {
+      templateId,
+      status: 200,
+    });
 
     return res.send(template);
   });
@@ -49,16 +60,34 @@ function templateRouter(templateService: TemplateService): Router {
         network
       );
     } catch (e) {
+      mixpanelTrack("search_template", {
+        cadence_hash: await genHash(cadence),
+        network,
+        status: 400,
+      });
+
       res.status(400);
       return res.send("GET /templates -- Error occured when getting template");
     }
 
     if (!template) {
+      mixpanelTrack("search_template", {
+        cadence_hash: await genHash(cadence),
+        network,
+        status: 204,
+      });
       res.status(204);
       return res.send(
         `GET /templates -- Did not find template for network=${network} cadence=${cadence_base64}`
       );
     }
+
+    mixpanelTrack("search_template", {
+      cadence_hash: await genHash(cadence),
+      network,
+      found_template_id: template.id,
+      status: 200,
+    });
 
     return res.send(template);
   });
