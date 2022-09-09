@@ -4,6 +4,7 @@ import { validateRequest } from "../middlewares/validate-request";
 import { TemplateService } from "../services/template";
 import { genHash } from "../utils/gen-hash";
 import { mixpanelTrack } from "../utils/mixpanel";
+import { parseCadence } from "../utils/parse-cadence";
 
 function templateRouter(templateService: TemplateService): Router {
   const router = express.Router();
@@ -52,16 +53,17 @@ function templateRouter(templateService: TemplateService): Router {
     }
 
     let cadence = Buffer.from(cadence_base64, "base64").toString("utf8");
+    let cadenceAST = await parseCadence(cadence);
 
     let template;
     try {
-      template = await templateService.getTemplateByCadence(
-        await genHash(cadence),
+      template = await templateService.getTemplateByCadenceASTHash(
+        await genHash(cadenceAST),
         network
       );
     } catch (e) {
       mixpanelTrack("search_template", {
-        cadence_hash: await genHash(cadence),
+        cadence_ast_hash: await genHash(cadenceAST),
         network,
         status: 400,
       });
@@ -72,7 +74,7 @@ function templateRouter(templateService: TemplateService): Router {
 
     if (!template) {
       mixpanelTrack("search_template", {
-        cadence_hash: await genHash(cadence),
+        cadence_ast_hash: await genHash(cadenceAST),
         network,
         status: 204,
       });
@@ -83,7 +85,7 @@ function templateRouter(templateService: TemplateService): Router {
     }
 
     mixpanelTrack("search_template", {
-      cadence_hash: await genHash(cadence),
+      cadence_ast_hash: await genHash(cadenceAST),
       network,
       found_template_id: template.id,
       status: 200,

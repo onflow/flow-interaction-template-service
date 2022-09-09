@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@onflow/cadence-parser": "0.26.0",
     "@onflow/fcl": "1.1.1-templates.8",
     "@onflow/rlp": "^1.0.2",
     "@types/cors": "^2.8.9",

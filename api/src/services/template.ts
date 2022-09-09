@@ -2,6 +2,7 @@ import * as fcl from "@onflow/fcl";
 import { Template } from "../models/template";
 import { readFiles } from "../utils/read-files";
 import { genHash } from "../utils/gen-hash";
+import { parseCadence } from "../utils/parse-cadence";
 
 class TemplateService {
   config: any;
@@ -41,19 +42,19 @@ class TemplateService {
     return foundTemplateJson;
   }
 
-  async getTemplateByCadence(cadenceHash: string, network: string) {
+  async getTemplateByCadenceASTHash(cadenceASTHash: string, network: string) {
     let foundTemplate: Template | null = null;
 
     if (network === "mainnet") {
       foundTemplate = (
         await Template.query().where({
-          mainnet_cadence_sha3_256_hash: cadenceHash,
+          mainnet_cadence_ast_sha3_256_hash: cadenceASTHash,
         })
       )[0];
     } else if (network === "testnet") {
       foundTemplate = (
         await Template.query().where({
-          testnet_cadence_sha3_256_hash: cadenceHash,
+          testnet_cadence_ast_sha3_256_hash: cadenceASTHash,
         })
       )[0];
     }
@@ -100,8 +101,12 @@ class TemplateService {
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
           json_string: template.content,
-          mainnet_cadence_sha3_256_hash: await genHash(mainnet_cadence),
-          testnet_cadence_sha3_256_hash: await genHash(testnet_cadence),
+          mainnet_cadence_ast_sha3_256_hash: await genHash(
+            await parseCadence(mainnet_cadence)
+          ),
+          testnet_cadence_ast_sha3_256_hash: await genHash(
+            await parseCadence(testnet_cadence)
+          ),
         });
       } catch (e) {
         console.warn(`Skipping template ${template.path} error=${e}`);
