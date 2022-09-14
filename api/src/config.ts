@@ -11,6 +11,8 @@ export function getConfig(env) {
   const dbPath = env.DATABASE_PATH!;
   const databaseUrl = env.DATABASE_URL;
 
+  const auditorsJsonFile = env.AUDITORS_JSON_FILE;
+
   const databaseMigrationPath = env.MIGRATION_PATH || defaultMigrationPath;
 
   const templateDir = env.TEMPLATE_DIR;
@@ -26,5 +28,6 @@ export function getConfig(env) {
     databaseMigrationPath,
     databaseUrl,
     templateDir,
+    auditorsJsonFile,
   };
 }

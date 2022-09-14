@@ -54,7 +54,11 @@ async function run() {
     await templateService.seed();
     console.log("Seeded TemplateService!");
 
-    const app = initApp(templateService);
+    const auditorsJSONFile = config.auditorsJsonFile
+      ? JSON.parse(fs.readFileSync(config.auditorsJsonFile, "utf8"))
+      : {};
+
+    const app = initApp(templateService, auditorsJSONFile);
 
     app.listen(config.port, () => {
       console.log(`Listening on port ${config.port}!`);

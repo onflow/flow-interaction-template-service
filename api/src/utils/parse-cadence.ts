@@ -1,5 +1,5 @@
 import { CadenceParser } from "@onflow/cadence-parser";
-import fs from "fs"
+import fs from "fs";
 
 let memoCadenceParser;
 

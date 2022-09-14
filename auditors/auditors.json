@@ -1,0 +1,13 @@
+{
+  "mainnet": [],
+  "testnet": [
+    { 
+      "f_type": "FlowInteractionTemplateAuditor", 
+      "f_version": "1.0.0", 
+      "address": "0xf78bfc12d0a786dc", 
+      "name": "Flow",
+      "twitter_url": "https://twitter.com/flow_blockchain", 
+      "website_url": "https://flow.com/"
+    }
+  ]
+}
