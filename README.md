@@ -24,7 +24,7 @@ With the API you can query Interaction Template by their ID:
 
 ```
 GET /v1/templates/${template_id}
-  => Interaction Template
+  => InteractionTemplate
 ```
 
 You can also query for Interaction Template by their cadence body:
@@ -35,7 +35,24 @@ POST /v1/templates/search
     cadence_base64: "...",
     network: "..." (mainnet | testnet)
   }
-  => Interaction Template
+  => InteractionTemplate
+```
+
+You can query for known Auditor information for a given network:
+
+```
+GET /v1/auditors?network=(mainnet | testnet)
+  => [FlowInteractionTemplateAuditor]
+
+  // Flow Interaction Template Auditor
+  // {
+  //   f_type: "FlowInteractionTemplateAuditor"
+  //   f_version: "1.0.0"
+  //   address: string
+  //   name: string
+  //   website_url?: string
+  //   twitter_url?: string
+  // }
 ```
 
 Flow's Interaction Template service is available at:
