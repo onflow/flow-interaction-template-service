@@ -15,8 +15,6 @@ function templateRouter(
   router.get("/templates", async (req: Request, res: Response) => {
     const name = req.query.name as string;
 
-    console.log("namesJSONFile", namesJSONFile);
-
     if (!name) {
       mixpanelTrack("get_template_by_name", {
         name,
