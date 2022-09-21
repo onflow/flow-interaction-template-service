@@ -6,8 +6,58 @@ import { genHash } from "../utils/gen-hash";
 import { mixpanelTrack } from "../utils/mixpanel";
 import { parseCadence } from "../utils/parse-cadence";
 
-function templateRouter(templateService: TemplateService): Router {
+function templateRouter(
+  templateService: TemplateService,
+  namesJSONFile: JSON
+): Router {
   const router = express.Router();
+
+  router.get("/templates", async (req: Request, res: Response) => {
+    const name = req.query.name as string;
+
+    console.log("namesJSONFile", namesJSONFile);
+
+    if (!name) {
+      mixpanelTrack("get_template_by_name", {
+        name,
+        status: 400,
+      });
+
+      res.status(400);
+      return res.send(
+        `GET /templates-- Required query parameter "name" not provided.`
+      );
+    }
+
+    let templateId: string = "";
+    let _name: string = name;
+    while (_name !== undefined) {
+      let foundName = namesJSONFile[_name];
+      if (foundName !== undefined) templateId = foundName;
+      _name = foundName;
+    }
+
+    const template = await templateService.getTemplate(templateId);
+
+    if (!template) {
+      mixpanelTrack("get_template", {
+        templateId,
+        status: 204,
+      });
+
+      res.status(204);
+      return res.send(
+        `GET /templates/:template_id -- Did not find template for template_id=${templateId}`
+      );
+    }
+
+    mixpanelTrack("get_template", {
+      templateId,
+      status: 200,
+    });
+
+    return res.send(template);
+  });
 
   router.get("/templates/:template_id", async (req: Request, res: Response) => {
     const templateId = req.params.template_id;

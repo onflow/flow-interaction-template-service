@@ -10,13 +10,17 @@ import { TemplateService } from "./services/template";
 const V1 = "/v1/";
 
 // Init all routes, setup middlewares and dependencies
-const initApp = (templateService: TemplateService, auditorsJSONFile: JSON) => {
+const initApp = (
+  templateService: TemplateService,
+  auditorsJSONFile: JSON,
+  namesJSONFile: JSON
+) => {
   const app = express();
 
   app.use(cors());
   app.use(json());
   app.use(urlencoded({ extended: false }));
-  app.use(V1, templateRouter(templateService));
+  app.use(V1, templateRouter(templateService, namesJSONFile));
   app.use(V1, auditorsRouter(auditorsJSONFile));
 
   app.all("*", async (req: Request, res: Response) => {

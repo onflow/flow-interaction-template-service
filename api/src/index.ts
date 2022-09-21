@@ -58,7 +58,11 @@ async function run() {
       ? JSON.parse(fs.readFileSync(config.auditorsJsonFile, "utf8"))
       : {};
 
-    const app = initApp(templateService, auditorsJSONFile);
+    const namesJSONFile = config.namesJsonFile
+      ? JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"))
+      : {};
+
+    const app = initApp(templateService, auditorsJSONFile, namesJSONFile);
 
     app.listen(config.port, () => {
       console.log(`Listening on port ${config.port}!`);
