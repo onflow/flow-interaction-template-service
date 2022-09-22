@@ -38,7 +38,8 @@ function templateRouter(
     const template = await templateService.getTemplate(templateId);
 
     if (!template) {
-      mixpanelTrack("get_template", {
+      mixpanelTrack("get_template_by_name", {
+        name,
         templateId,
         status: 204,
       });
@@ -49,7 +50,8 @@ function templateRouter(
       );
     }
 
-    mixpanelTrack("get_template", {
+    mixpanelTrack("get_template_by_name", {
+      name,
       templateId,
       status: 200,
     });
