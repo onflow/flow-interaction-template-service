@@ -1,3 +1,3 @@
-## API
+# API
 
-### Host `InteractionTemplate` using this API.
+Host `InteractionTemplate` using this API.

@@ -55,6 +55,13 @@ GET /v1/auditors?network=(mainnet | testnet)
   // }
 ```
 
+Interaction Template can be hosted under a static identifer (name), allowing the underlying Interaction Template to change while the way to query for it remained constant:
+
+```
+GET /v1/templates?name=transfer-flow
+  => InteractionTemplate
+```
+
 Flow's Interaction Template service is available at:
 
 ```
