@@ -67,6 +67,7 @@ Flow's Interaction Template service is available at:
 ```
 https://flix.flow.com
 
+eg: GET https://flix.flow.com/v1/templates?name=transfer-flow
 eg: GET https://flix.flow.com/v1/templates/${template_id}
 eg: POST https://flix.flow.com/v1/templates/search
     body (JSON): {
