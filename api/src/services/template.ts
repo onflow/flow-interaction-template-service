@@ -83,65 +83,6 @@ class TemplateService {
     return templateManifest;
   }
 
-  // async seed() {
-  //   const templateFiles = (await readFiles(this.config.templateDir)).map(
-  //     (file: any) => file.content
-  //   );
-
-  //   await Template.query().del();
-
-  //   const templateManifest = (await this.getTemplateManifest()) || {};
-
-  //   for (let template of templateFiles) {
-  //     try {
-  //       let parsedTemplate = JSON.parse(template);
-
-  //       let mainnet_cadence =
-  //         fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-  //           template: parsedTemplate,
-  //           network: "mainnet",
-  //         });
-
-  //       let testnet_cadence =
-  //         fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-  //           template: parsedTemplate,
-  //           network: "testnet",
-  //         });
-
-  //       const recomputedTemplateID =
-  //         await fcl.InteractionTemplateUtils.generateTemplateId({
-  //           template: parsedTemplate,
-  //         });
-  //       if (recomputedTemplateID !== parsedTemplate.id)
-  //         throw new Error(
-  //           `recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`
-  //         );
-
-  //       const formattedTemplate = {
-  //         id: parsedTemplate.id,
-  //         json_string: template,
-  //         mainnet_cadence_ast_sha3_256_hash: await genHash(
-  //           await parseCadence(mainnet_cadence)
-  //         ),
-  //         testnet_cadence_ast_sha3_256_hash: await genHash(
-  //           await parseCadence(testnet_cadence)
-  //         ),
-  //       };
-
-  //       await Template.query().insertAndFetch(formattedTemplate);
-
-  //       templateManifest[parsedTemplate.id] = parsedTemplate;
-  //     } catch (e) {
-  //       console.warn(`Skipping template ${JSON.parse(template).id} error=${e}`);
-  //     }
-  //   }
-
-  //   await writeFile(
-  //     this.config.templateManifestFile,
-  //     JSON.stringify(templateManifest, null, 2)
-  //   );
-  // }
-
   async seed() {
     const templates = (await readFiles(this.config.templateDir))
       .map((file: any) => file.content)

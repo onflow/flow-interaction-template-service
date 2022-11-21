@@ -63,10 +63,9 @@ function templateRouter(
     const templateManifest = await templateService.getTemplateManifest();
 
     if (!templateManifest) {
-      // mixpanelTrack("get_template_manifest", {
-      //   templateId,
-      //   status: 204,
-      // });
+      mixpanelTrack("get_template_manifest", {
+        status: 204,
+      });
 
       res.status(204);
       return res.send(
@@ -74,10 +73,9 @@ function templateRouter(
       );
     }
 
-    // mixpanelTrack("get_template", {
-    //   templateId,
-    //   status: 200,
-    // });
+    mixpanelTrack("get_template_manifest", {
+      status: 200,
+    });
 
     return res.send(templateManifest);
   });
