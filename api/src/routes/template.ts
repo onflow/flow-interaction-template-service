@@ -59,6 +59,29 @@ function templateRouter(
     return res.send(template);
   });
 
+  router.get("/templates/manifest", async (req: Request, res: Response) => {
+    const templateManifest = await templateService.getTemplateManifest();
+
+    if (!templateManifest) {
+      // mixpanelTrack("get_template_manifest", {
+      //   templateId,
+      //   status: 204,
+      // });
+
+      res.status(204);
+      return res.send(
+        `GET /templates/manifest -- Did not find template manifest`
+      );
+    }
+
+    // mixpanelTrack("get_template", {
+    //   templateId,
+    //   status: 200,
+    // });
+
+    return res.send(templateManifest);
+  });
+
   router.get("/templates/:template_id", async (req: Request, res: Response) => {
     const templateId = req.params.template_id;
 
