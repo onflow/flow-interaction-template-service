@@ -84,10 +84,14 @@ class TemplateService {
   }
 
   async seed() {
-    const templates = (await readFiles(this.config.templateDir))
+    let templates: any[] = [];
+
+    const localTemplates = (await readFiles(this.config.templateDir))
       .map((file: any) => file.content)
       .filter((file) => file !== null)
       .map((file) => JSON.parse(file));
+
+    templates = templates.concat(localTemplates);
 
     const peers = this.config.peers ? this.config.peers.split(",") : [];
 
@@ -104,22 +108,17 @@ class TemplateService {
 
     templates.concat(Object.values(templateManifest));
 
-    for (const template of templates) {
+    parseTemplatesLoop: for (const template of templates) {
       try {
         const parsedTemplate =
           typeof template === "object" ? template : JSON.parse(template);
 
-        const mainnet_cadence =
-          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-            template: parsedTemplate,
-            network: "mainnet",
-          });
-
-        const testnet_cadence =
-          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-            template: parsedTemplate,
-            network: "testnet",
-          });
+        if (
+          template.f_type !== "InteractionTemplate" ||
+          template.f_version !== "1.0.0"
+        ) {
+          continue parseTemplatesLoop;
+        }
 
         const recomputedTemplateID =
           await fcl.InteractionTemplateUtils.generateTemplateId({
@@ -129,6 +128,26 @@ class TemplateService {
           throw new Error(
             `recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`
           );
+
+        const mainnet_cadence =
+          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
+            template: parsedTemplate,
+            network: "mainnet",
+          });
+
+        if (!mainnet_cadence || mainnet_cadence === "") {
+          continue parseTemplatesLoop;
+        }
+
+        const testnet_cadence =
+          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
+            template: parsedTemplate,
+            network: "testnet",
+          });
+
+        if (!testnet_cadence || testnet_cadence === "") {
+          continue parseTemplatesLoop;
+        }
 
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
