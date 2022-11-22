@@ -1,4 +1,5 @@
 import * as fcl from "@onflow/fcl";
+import fetch from "node-fetch";
 import { Template } from "../models/template";
 import { readFiles } from "../utils/read-files";
 import { writeFile } from "../utils/write-file";
@@ -91,22 +92,38 @@ class TemplateService {
       .filter((file) => file !== null)
       .map((file) => JSON.parse(file));
 
+    console.log(`Found ${localTemplates.length} local template files`);
+
     templates = templates.concat(localTemplates);
 
     const peers = this.config.peers ? this.config.peers.split(",") : [];
 
     for (const peer of peers) {
-      const manifest = await fetch(peer)
+      console.log(`Fetching peer ${peer}`);
+      const manifest: any = await fetch(peer)
         .then((res) => (res.status === 200 ? res.json() : null))
         .catch((e) => null);
       if (manifest) {
-        templates.concat(Object.values(manifest));
+        console.log(
+          `Found manifest from ${peer} with ${
+            Object.values(manifest).length
+          } entries`
+        );
+        templates = templates.concat(Object.values(manifest));
       }
     }
 
     const templateManifest = (await this.getTemplateManifest()) || {};
 
-    templates.concat(Object.values(templateManifest));
+    console.log(
+      `Found local manifest with ${
+        Object.values(templateManifest).length
+      } templates`
+    );
+
+    templates = templates.concat(Object.values(templateManifest));
+
+    console.log(`Parsing ${templates.length} templates`);
 
     parseTemplatesLoop: for (const template of templates) {
       try {
@@ -129,6 +146,11 @@ class TemplateService {
             `recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`
           );
 
+        if (await Template.query().findById(parsedTemplate.id)) {
+          console.log(`Skipping template with ID = ${parsedTemplate.id}`);
+          continue parseTemplatesLoop;
+        }
+
         const mainnet_cadence =
           fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
             template: parsedTemplate,
@@ -148,6 +170,8 @@ class TemplateService {
         if (!testnet_cadence || testnet_cadence === "") {
           continue parseTemplatesLoop;
         }
+
+        console.log(`Inserting template with ID = ${parsedTemplate.id}`);
 
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
