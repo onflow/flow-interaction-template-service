@@ -77,17 +77,25 @@ class TemplateService {
       try {
         let parsedTemplate = JSON.parse(template.content);
 
-        let mainnet_cadence =
-          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-            template: parsedTemplate,
-            network: "mainnet",
-          });
+        let mainnet_cadence;
+        try {
+          mainnet_cadence = fcl.InteractionTemplateUtils.deriveCadenceByNetwork(
+            {
+              template: parsedTemplate,
+              network: "mainnet",
+            }
+          );
+        } catch (e) {}
 
-        let testnet_cadence =
-          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-            template: parsedTemplate,
-            network: "testnet",
-          });
+        let testnet_cadence;
+        try {
+          testnet_cadence = fcl.InteractionTemplateUtils.deriveCadenceByNetwork(
+            {
+              template: parsedTemplate,
+              network: "testnet",
+            }
+          );
+        } catch (e) {}
 
         const recomputedTemplateID =
           await fcl.InteractionTemplateUtils.generateTemplateId({
@@ -101,12 +109,12 @@ class TemplateService {
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
           json_string: template.content,
-          mainnet_cadence_ast_sha3_256_hash: await genHash(
-            await parseCadence(mainnet_cadence)
-          ),
-          testnet_cadence_ast_sha3_256_hash: await genHash(
-            await parseCadence(testnet_cadence)
-          ),
+          mainnet_cadence_ast_sha3_256_hash: mainnet_cadence
+            ? await genHash(await parseCadence(mainnet_cadence))
+            : undefined,
+          testnet_cadence_ast_sha3_256_hash: testnet_cadence
+            ? await genHash(await parseCadence(testnet_cadence))
+            : undefined,
         });
       } catch (e) {
         console.warn(`Skipping template ${template.path} error=${e}`);
