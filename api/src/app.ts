@@ -9,6 +9,12 @@ import { TemplateService } from "./services/template";
 
 const V1 = "/v1/";
 
+const corsOptions = {
+  origin: "*",
+  credentials: true,
+  optionSuccessStatus: 200,
+};
+
 // Init all routes, setup middlewares and dependencies
 const initApp = (
   templateService: TemplateService,
@@ -17,7 +23,7 @@ const initApp = (
 ) => {
   const app = express();
 
-  app.use(cors());
+  app.use(cors(corsOptions));
   app.use(json());
   app.use(urlencoded({ extended: false }));
   app.use(V1, templateRouter(templateService, namesJSONFile));
