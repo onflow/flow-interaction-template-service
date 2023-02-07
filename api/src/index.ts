@@ -6,6 +6,7 @@ import initApp from "./app";
 import { getConfig } from "./config";
 import initDB from "./db";
 import { TemplateService } from "./services/template";
+import * as cron from "cron";
 
 const argv = yargs(hideBin(process.argv)).argv;
 const DEV = argv.dev;
@@ -53,6 +54,19 @@ async function run() {
     console.log("...Seeding TemplateService...");
     await templateService.seed();
     console.log("Seeded TemplateService!");
+
+    const CronJob = cron.CronJob;
+    const job = new CronJob(
+      "*/5 * * * *",
+      async function () {
+        console.log("...Syncing TemplateService...");
+        await templateService.seed();
+        console.log("Synched TemplateService!");
+      },
+      null,
+      true,
+      "America/Los_Angeles"
+    );
 
     const auditorsJSONFile = config.auditorsJsonFile
       ? JSON.parse(fs.readFileSync(config.auditorsJsonFile, "utf8"))

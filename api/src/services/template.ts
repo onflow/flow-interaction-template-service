@@ -1,6 +1,8 @@
 import * as fcl from "@onflow/fcl";
+import fetch from "node-fetch";
 import { Template } from "../models/template";
 import { readFiles } from "../utils/read-files";
+import { writeFile } from "../utils/write-file";
 import { genHash } from "../utils/gen-hash";
 import { parseCadence } from "../utils/parse-cadence";
 
@@ -68,14 +70,86 @@ class TemplateService {
     return foundTemplateJson;
   }
 
+  async getTemplateManifest() {
+    let templateManifest;
+    try {
+      templateManifest = (
+        await readFiles(this.config.templateManifestFile)
+      ).map((file: any) => file.content)[0];
+      templateManifest = JSON.parse(templateManifest);
+    } catch (e) {
+      console.error("Error reading manifest file");
+      return null;
+    }
+    return templateManifest;
+  }
+
   async seed() {
-    const templates = await readFiles(this.config.templateDir);
+    let templates: any[] = [];
 
-    await Template.query().del();
+    const localTemplates = (await readFiles(this.config.templateDir))
+      .map((file: any) => file.content)
+      .filter((file) => file !== null)
+      .map((file) => JSON.parse(file));
 
-    for (let template of templates) {
+    console.log(`Found ${localTemplates.length} local template files`);
+
+    templates = templates.concat(localTemplates);
+
+    const peers = this.config.peers ? this.config.peers.split(",") : [];
+
+    for (const peer of peers) {
+      console.log(`Fetching peer ${peer}`);
+      const manifest: any = await fetch(peer)
+        .then((res) => (res.status === 200 ? res.json() : null))
+        .catch((e) => null);
+      if (manifest) {
+        console.log(
+          `Found manifest from ${peer} with ${
+            Object.values(manifest).length
+          } entries`
+        );
+        templates = templates.concat(Object.values(manifest));
+      }
+    }
+
+    const templateManifest = (await this.getTemplateManifest()) || {};
+
+    console.log(
+      `Found local manifest with ${
+        Object.values(templateManifest).length
+      } templates`
+    );
+
+    templates = templates.concat(Object.values(templateManifest));
+
+    console.log(`Parsing ${templates.length} templates`);
+
+    parseTemplatesLoop: for (const template of templates) {
       try {
-        let parsedTemplate = JSON.parse(template.content);
+        const parsedTemplate =
+          typeof template === "object" ? template : JSON.parse(template);
+
+        if (
+          template.f_type !== "InteractionTemplate" ||
+          template.f_version !== "1.0.0"
+        ) {
+          continue parseTemplatesLoop;
+        }
+
+        const recomputedTemplateID =
+          await fcl.InteractionTemplateUtils.generateTemplateId({
+            template: parsedTemplate,
+          });
+        if (recomputedTemplateID !== parsedTemplate.id)
+          throw new Error(
+            `recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`
+          );
+
+        if (await Template.query().findById(parsedTemplate.id)) {
+          console.log(`Skipping template with ID = ${parsedTemplate.id}`);
+          continue parseTemplatesLoop;
+        }
 
         let mainnet_cadence;
         try {
@@ -97,18 +171,15 @@ class TemplateService {
           );
         } catch (e) {}
 
-        const recomputedTemplateID =
-          await fcl.InteractionTemplateUtils.generateTemplateId({
-            template: parsedTemplate,
-          });
-        if (recomputedTemplateID !== parsedTemplate.id)
-          throw new Error(
-            `recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`
-          );
+        if (!testnet_cadence || testnet_cadence === "") {
+          continue parseTemplatesLoop;
+        }
+
+        console.log(`Inserting template with ID = ${parsedTemplate.id}`);
 
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
-          json_string: template.content,
+          json_string: JSON.stringify(template),
           mainnet_cadence_ast_sha3_256_hash: mainnet_cadence
             ? await genHash(await parseCadence(mainnet_cadence))
             : undefined,
@@ -116,10 +187,17 @@ class TemplateService {
             ? await genHash(await parseCadence(testnet_cadence))
             : undefined,
         });
+
+        templateManifest[parsedTemplate.id] = parsedTemplate;
       } catch (e) {
-        console.warn(`Skipping template ${template.path} error=${e}`);
+        console.warn(`Skipping template error=${e}`);
       }
     }
+
+    await writeFile(
+      this.config.templateManifestFile,
+      JSON.stringify(templateManifest, null, 2)
+    );
   }
 }
 

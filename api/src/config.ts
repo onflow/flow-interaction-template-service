@@ -18,6 +18,10 @@ export function getConfig(env) {
 
   const templateDir = env.TEMPLATE_DIR;
 
+  const peers = env.PEERS;
+
+  const templateManifestFile = env.TEMPLATE_MANIFEST_FILE;
+
   console.log("ENV: ", env);
   console.log("accessApi", accessApi);
   console.log("databaseMigrationPath: ", databaseMigrationPath);
@@ -31,5 +35,7 @@ export function getConfig(env) {
     templateDir,
     auditorsJsonFile,
     namesJsonFile,
+    peers,
+    templateManifestFile,
   };
 }
