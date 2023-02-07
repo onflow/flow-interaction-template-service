@@ -179,7 +179,7 @@ class TemplateService {
 
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
-          json_string: template.content,
+          json_string: JSON.stringify(template),
           mainnet_cadence_ast_sha3_256_hash: mainnet_cadence
             ? await genHash(await parseCadence(mainnet_cadence))
             : undefined,

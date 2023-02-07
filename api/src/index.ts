@@ -57,7 +57,7 @@ async function run() {
 
     const CronJob = cron.CronJob;
     const job = new CronJob(
-      "1 * * * * *",
+      "*/5 * * * *",
       async function () {
         console.log("...Syncing TemplateService...");
         await templateService.seed();
