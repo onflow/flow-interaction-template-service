@@ -151,21 +151,25 @@ class TemplateService {
           continue parseTemplatesLoop;
         }
 
-        const mainnet_cadence =
-          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-            template: parsedTemplate,
-            network: "mainnet",
-          });
+        let mainnet_cadence;
+        try {
+          mainnet_cadence = fcl.InteractionTemplateUtils.deriveCadenceByNetwork(
+            {
+              template: parsedTemplate,
+              network: "mainnet",
+            }
+          );
+        } catch (e) {}
 
-        if (!mainnet_cadence || mainnet_cadence === "") {
-          continue parseTemplatesLoop;
-        }
-
-        const testnet_cadence =
-          fcl.InteractionTemplateUtils.deriveCadenceByNetwork({
-            template: parsedTemplate,
-            network: "testnet",
-          });
+        let testnet_cadence;
+        try {
+          testnet_cadence = fcl.InteractionTemplateUtils.deriveCadenceByNetwork(
+            {
+              template: parsedTemplate,
+              network: "testnet",
+            }
+          );
+        } catch (e) {}
 
         if (!testnet_cadence || testnet_cadence === "") {
           continue parseTemplatesLoop;
@@ -175,13 +179,13 @@ class TemplateService {
 
         await Template.query().insertAndFetch({
           id: parsedTemplate.id,
-          json_string: template,
-          mainnet_cadence_ast_sha3_256_hash: await genHash(
-            await parseCadence(mainnet_cadence)
-          ),
-          testnet_cadence_ast_sha3_256_hash: await genHash(
-            await parseCadence(testnet_cadence)
-          ),
+          json_string: template.content,
+          mainnet_cadence_ast_sha3_256_hash: mainnet_cadence
+            ? await genHash(await parseCadence(mainnet_cadence))
+            : undefined,
+          testnet_cadence_ast_sha3_256_hash: testnet_cadence
+            ? await genHash(await parseCadence(testnet_cadence))
+            : undefined,
         });
 
         templateManifest[parsedTemplate.id] = parsedTemplate;
