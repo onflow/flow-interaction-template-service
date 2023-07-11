@@ -1,0 +1,42 @@
+{
+    "f_type": "InteractionTemplate",
+    "f_version": "1.0.0",
+    "id": "3d3b10059747e72e49169299970be8047938decfd131b7380330cf33260f5066",
+    "data": {
+      "type": "script",
+      "interface": "",
+      "messages": {
+        "title": {
+          "i18n": {
+            "en-US": "Multiply"
+          }
+        }
+      },
+      "cadence": "pub fun main(x: Int, y: Int): Int { return x * y }",
+      "dependencies": {},
+      "arguments": {
+        "x": {
+          "index": 0,
+          "type": "Int",
+          "messages": {
+            "title": {
+              "i18n": {
+                "en-US": "Int 1"
+              }
+            }
+          }
+        },
+        "y": {
+          "index": 1,
+          "type": "Int",
+          "messages": {
+            "title": {
+              "i18n": {
+                "en-US": "Int 2"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
