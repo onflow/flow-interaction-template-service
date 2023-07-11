@@ -1,0 +1,47 @@
+{
+    "f_type": "InteractionTemplate",
+    "f_version": "1.0.0",
+    "id": "bd10ab0bf472e6b58ecc0398e9b3d1bd58a4205f14a7099c52c0640d9589295f",
+    "data": {
+      "type": "script",
+      "interface": "",
+      "messages": {
+        "title": {
+          "i18n": {
+            "en-US": "Multiply Two Integers"
+          }
+        },
+        "description": {
+          "i18n": {
+            "en-US": "Multiplies two integer arguments together and returns the result."
+          }
+        }
+      },
+      "cadence": "pub fun main(x: Int, y: Int): Int { return x * y }",
+      "dependencies": {},
+      "arguments": {
+        "x": {
+          "index": 0,
+          "type": "Int",
+          "messages": {
+            "title": {
+              "i18n": {
+                "en-US": "Int 1"
+              }
+            }
+          }
+        },
+        "y": {
+          "index": 1,
+          "type": "Int",
+          "messages": {
+            "title": {
+              "i18n": {
+                "en-US": "Int 2"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
