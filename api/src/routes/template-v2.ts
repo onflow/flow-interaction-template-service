@@ -105,23 +105,43 @@ function templateRouter(
     return res.send(template);
   });
 
-  router.post("/templates/search", async (req: Request, res: Response) => {
+  router.post("/templates/search/messages", async (req: Request, res: Response) => {
+    const page = req.body.page as number || undefined;
+    const range = req.body.range as number || undefined;
+    const searchMessagesTitleENUS = req.body.searchMessagesTitleENUS as string || undefined;
+    const searchMessagesDescriptionENUS = req.body.searchMessagesDescriptionENUS as string || undefined;
+
+    console.log("Searching messages...")
+    console.log("page", page)
+    console.log("range", range)
+    console.log("searchMessagesTitleENUS", searchMessagesTitleENUS)
+    console.log("searchMessagesDescriptionENUS", searchMessagesDescriptionENUS)
+
+    try {
+      const templates = await templateService.searchTemplates(
+        page ?? 0,
+        range ?? 100,
+        searchMessagesTitleENUS,
+        searchMessagesDescriptionENUS
+      )
+      return res.send(templates)
+
+    } catch (e) {
+      mixpanelTrack("search_template_messages", {
+        page,
+        range,
+        searchMessagesTitleENUS,
+        searchMessagesDescriptionENUS,
+        status: 400,
+      });
+      res.status(400);
+      return res.send("POST /templates/search/messages -- Error occurred when getting template");
+    }
+  })
+
+  router.post("/templates/search/cadence", async (req: Request, res: Response) => {
     const cadence_base64 = req.body.cadence_base64 as string;
-    const network = req.body.network as string;
-
-    if (!cadence_base64) {
-      res.status(400);
-      return res.send(
-        "POST /templates/search -- 'cadenceBase64' in request body not found"
-      );
-    }
-
-    if (!network) {
-      res.status(400);
-      return res.send(
-        "POST /templates/search -- 'network' in request body not found"
-      );
-    }
+    const network = req.body.network as string
 
     let cadence = Buffer.from(cadence_base64, "base64").toString("utf8");
     let cadenceAST = await parseCadence(cadence);
@@ -140,7 +160,7 @@ function templateRouter(
       });
 
       res.status(400);
-      return res.send("GET /templates -- Error occured when getting template");
+      return res.send("POST /templates/search/cadence -- Error occurred when getting template");
     }
 
     if (!template) {
@@ -151,7 +171,7 @@ function templateRouter(
       });
       res.status(204);
       return res.send(
-        `GET /templates -- Did not find template for network=${network} cadence=${cadence_base64}`
+        `POST /templates/search/cadence -- Did not find template for network=${network} cadence=${cadence_base64}`
       );
     }
 
