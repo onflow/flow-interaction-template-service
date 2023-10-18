@@ -22,11 +22,7 @@ export function getConfig(env) {
 
   const templateManifestFile = env.TEMPLATE_MANIFEST_FILE;
 
-  console.log("ENV: ", env);
-  console.log("accessApi", accessApi);
-  console.log("databaseMigrationPath: ", databaseMigrationPath);
-
-  return {
+  const _CONFIG = {
     port,
     accessApi,
     dbPath,
@@ -38,4 +34,6 @@ export function getConfig(env) {
     peers,
     templateManifestFile,
   };
+
+  return _CONFIG
 }
