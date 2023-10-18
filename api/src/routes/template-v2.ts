@@ -111,12 +111,6 @@ function templateRouter(
     const searchMessagesTitleENUS = req.body.searchMessagesTitleENUS as string || undefined;
     const searchMessagesDescriptionENUS = req.body.searchMessagesDescriptionENUS as string || undefined;
 
-    console.log("Searching messages...")
-    console.log("page", page)
-    console.log("range", range)
-    console.log("searchMessagesTitleENUS", searchMessagesTitleENUS)
-    console.log("searchMessagesDescriptionENUS", searchMessagesDescriptionENUS)
-
     try {
       const templates = await templateService.searchTemplates(
         page ?? 0,
