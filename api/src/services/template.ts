@@ -1,5 +1,6 @@
 import * as fcl from "@onflow/fcl";
 import fetch from "node-fetch";
+import fs from "fs";
 import { Template } from "../models/template";
 import { readFiles } from "../utils/read-files";
 import { writeFile } from "../utils/write-file";
@@ -44,6 +45,41 @@ class TemplateService {
     return foundTemplateJson;
   }
 
+  async searchTemplates(
+    page: number = 0,
+    range: number = 100,
+    searchMessagesTitleENUS?: string,
+    searchMessagesDescriptionENUS?: string
+  ) {
+    let queryBuilder = Template.query().page(page, range);
+
+    if (searchMessagesTitleENUS) {
+      queryBuilder = queryBuilder.where("messages_title_enUS", "like", `%${searchMessagesTitleENUS}%`)
+    }
+
+    if (searchMessagesDescriptionENUS) {
+      queryBuilder = queryBuilder.where("messages_description_enUS", "like", `%${searchMessagesDescriptionENUS}%`)
+    }
+
+    const foundTemplatesQueryResult = await queryBuilder
+
+    const foundTemplates = foundTemplatesQueryResult.results.map(foundTemplate => {
+      let foundTemplateJson = foundTemplate?.json_string || null;
+      if (typeof foundTemplateJson === "string") {
+        foundTemplateJson = JSON.parse(foundTemplateJson);
+        return foundTemplateJson;
+      }
+      return null
+    }).filter(foundTemplate => foundTemplate !== null)
+
+    return {
+      page,
+      range,
+      count: foundTemplatesQueryResult.total,
+      results: foundTemplates,
+    }
+  }
+
   async getTemplateByCadenceASTHash(cadenceASTHash: string, network: string) {
     let foundTemplate: Template | null = null;
 
@@ -71,17 +107,12 @@ class TemplateService {
   }
 
   async getTemplateManifest() {
-    let templateManifest;
     try {
-      templateManifest = (
-        await readFiles(this.config.templateManifestFile)
-      ).map((file: any) => file.content)[0];
-      templateManifest = JSON.parse(templateManifest);
+      return JSON.parse(fs.readFileSync(this.config.templateManifestFile, "utf8"))
     } catch (e) {
       console.error("Error reading manifest file");
       return null;
     }
-    return templateManifest;
   }
 
   async seed() {
@@ -186,6 +217,8 @@ class TemplateService {
           testnet_cadence_ast_sha3_256_hash: testnet_cadence
             ? await genHash(await parseCadence(testnet_cadence))
             : undefined,
+          messages_title_enUS: parsedTemplate?.data?.messages?.title?.i18n?.["en-US"],
+          messages_description_enUS: parsedTemplate?.data?.messages?.description?.i18n?.["en-US"]
         });
 
         templateManifest[parsedTemplate.id] = parsedTemplate;
