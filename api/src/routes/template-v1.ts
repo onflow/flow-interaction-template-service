@@ -105,24 +105,23 @@ function templateRouter(
     return res.send(template);
   });
 
-  router.post("/templates/search/all", async (req: Request, res: Response) => {
-    const page = req.body.cadence_base64 as number;
-    const range = req.body.cadence_base64 as number;
-    const searchMessagesTitleENUS = req.body.cadence_base64 as string;
-    const searchMessagesDescriptionENUS = req.body.cadence_base64 as string;
-
-    const templates = await templateService.searchTemplates(
-      page ?? 0,
-      range ?? 100,
-      searchMessagesTitleENUS,
-      searchMessagesDescriptionENUS
-    )
-      
-  })
-
   router.post("/templates/search", async (req: Request, res: Response) => {
     const cadence_base64 = req.body.cadence_base64 as string;
-    const network = req.body.network as string
+    const network = req.body.network as string;
+
+    if (!cadence_base64) {
+      res.status(400);
+      return res.send(
+        "POST /templates/search -- 'cadenceBase64' in request body not found"
+      );
+    }
+
+    if (!network) {
+      res.status(400);
+      return res.send(
+        "POST /templates/search -- 'network' in request body not found"
+      );
+    }
 
     let cadence = Buffer.from(cadence_base64, "base64").toString("utf8");
     let cadenceAST = await parseCadence(cadence);
