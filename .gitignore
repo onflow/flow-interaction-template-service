@@ -32,3 +32,4 @@ lerna-debug.log*
 flowdb
 *-credentials-*
 .env.testnet.local
+flix-manifest.json
