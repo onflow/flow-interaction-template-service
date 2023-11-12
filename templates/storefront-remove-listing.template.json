@@ -1,18 +1,23 @@
 {
   "f_type": "InteractionTemplate",
   "f_version": "1.0.0",
-  "id": "4cae5363d75924bd1fa8e8157a79ec170aa4d76e97edb7ae2d6f133e25203d59",
+  "id": "0a803caf5e5e24d2a995eb51b588da44292c4bf65b1e77fecb5834111e6941af",
   "data": {
     "type": "transaction",
     "interface": "",
     "messages": {
       "title": {
         "i18n": {
-          "en-US": "This transaction facilitates the removal of a Flovatar NFT listing with the StorefrontV2 contract"
+          "en-US": "Remove NFT listing"
+        }
+      },
+      "description": {
+        "i18n": {
+          "en-US": "This transaction facilitates the removal of an NFT listing with the StorefrontV2 contract"
         }
       }
     },
-    "cadence": "import NFTStorefrontV2 from 0xNFTStorefrontV2\n// This transaction was auto-generated with the NFT Catalog (https://github.com/dapperlabs/nft-catalog)\n//\n// This transaction facilitates the removal of a listing with the StorefrontV2 contract\n// \n// Collection Identifier: Flovatar\n//\n// Version: 0.1.1\n\ntransaction(listingResourceID: UInt64) {\n    /// `listingResourceID` - ID of the Storefront listing resource\n    \n    let storefront: &NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontManager}\n\n    prepare(acct: AuthAccount) {\n        self.storefront = acct.borrow<&NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontManager}>(from: NFTStorefrontV2.StorefrontStoragePath)\n            ?? panic(\"Missing or mis-typed NFTStorefrontV2.Storefront\")\n    }\n\n    execute {\n        self.storefront.removeListing(listingResourceID: listingResourceID)\n    }\n}\n\n",
+    "cadence": "import NFTStorefrontV2 from 0xNFTStorefrontV2\n\ntransaction(listingResourceID: UInt64) {\n    /// `listingResourceID` - ID of the Storefront listing resource\n    \n    let storefront: &NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontManager}\n\n    prepare(acct: AuthAccount) {\n        self.storefront = acct.borrow<&NFTStorefrontV2.Storefront{NFTStorefrontV2.StorefrontManager}>(from: NFTStorefrontV2.StorefrontStoragePath)\n            ?? panic(\"Missing or mis-typed NFTStorefrontV2.Storefront\")\n    }\n\n    execute {\n        self.storefront.removeListing(listingResourceID: listingResourceID)\n    }\n}\n\n",
     "dependencies": {
       "0xNFTStorefrontV2": {
         "NFTStorefrontV2": {

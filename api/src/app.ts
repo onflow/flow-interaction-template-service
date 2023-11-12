@@ -2,7 +2,6 @@ import { json, urlencoded } from "body-parser";
 import cors from "cors";
 import express, { Request, Response } from "express";
 import "express-async-errors";
-import path from "path";
 import templateRouter from "./routes/template";
 import auditorsRouter from "./routes/auditors";
 import { TemplateService } from "./services/template";
