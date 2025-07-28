@@ -1,12 +1,12 @@
-# 🌊 Flow Interaction Template Service
+# Flow Interaction Template Service
 
 This Flow Interaction Template Service provides a way to propose, store and host `InteractionTemplate` data structures using an efficient in-memory storage system.
 
-## 📖 Overview
+## Overview
 
 This repository is a place for developers to propose their Interaction Templates to be audited, and where Interaction Templates can be stored and hosted by the provided API. The service uses an in-memory storage system that loads all templates at startup for fast, efficient access.
 
-## 🏗️ Architecture
+## Architecture
 
 ### In-Memory Storage System
 The service uses a high-performance in-memory storage system that:
@@ -39,17 +39,17 @@ The service provides a RESTful API with the following endpoints:
 
 <a name="propose"></a>
 
-## 💡 Propose Interaction Template
+## Propose Interaction Template
 
 If you have created an Interaction Template, you can create a PR to place your Interaction Template in the `./proposals` folder of this repository.
 
 Auditors in the Flow ecosystem can check this folder to see new Interaction Templates available for audit.
 
-## 💾 Store Interaction Templates
+## Store Interaction Templates
 
 If you have created an Interaction Template, you can create a PR to place your Interaction Template in the `./templates` folder of this repository. Templates are automatically loaded into memory when the service starts.
 
-## 📤 Host Interaction Templates
+## Host Interaction Templates
 
 ### Query by Template ID
 ```http
@@ -87,7 +87,7 @@ GET /v1/auditors?network=mainnet
 ```
 Returns auditor information for the specified network.
 
-## 🚀 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 The service is optimized for serverless deployment on Vercel:
@@ -115,7 +115,7 @@ npm run build
 npm start
 ```
 
-## 🛠 Development
+## Development
 
 ### Prerequisites
 - Node.js 20.x or higher
@@ -172,7 +172,7 @@ npm start
 - **`names/names.json`** - Name aliases for template lookup
 - **Template files** - Individual `.template.json` files containing InteractionTemplate data
 
-## 🌐 Live Service
+## Live Service
 
 Flow's official Interaction Template service is available at:
 ```
@@ -196,7 +196,7 @@ curl -X POST "https://flix.flow.com/v1/templates/search" \
 curl "https://flix.flow.com/v1/auditors?network=mainnet"
 ```
 
-## 🌎🌍🌏 Open to Anyone
+## Open to Anyone
 
 This project is open to be run by anyone. By forking this repository and deploying the API service, anyone can run an instance of FLIX and make Interaction Templates available for querying.
 
@@ -208,7 +208,7 @@ The in-memory storage system makes it easy to deploy:
 
 If you don't wish to operate your own instance of FLIX, you can use Flow's official instance at `https://flix.flow.com`. To add Interaction Templates to Flow's instance, follow the [Propose Templates](#propose) workflow above.
 
-## 📊 Performance Characteristics
+## Performance Characteristics
 
 - **Startup Time**: 1-2 seconds to load 580+ templates
 - **Memory Usage**: ~12MB total (1.2% of typical serverless limits)
@@ -216,13 +216,13 @@ If you don't wish to operate your own instance of FLIX, you can use Flow's offic
 - **Template Count**: Currently supporting 580+ templates
 - **Data Size**: ~7.5MB of template data
 
-## 🛠 Notable Features
+## Notable Features
 
-- ✅ **In-memory storage** for maximum performance
-- ✅ **Serverless-optimized** architecture  
-- ✅ **Zero database dependencies**
-- ✅ **Fast cold starts** on Vercel
-- ✅ **Template validation** using Flow's InteractionTemplateUtils
-- ✅ **Automatic manifest generation**
-- ✅ **CORS-enabled** for browser usage
-- ✅ **TypeScript** for type safety
+- **In-memory storage** for maximum performance
+- **Serverless-optimized** architecture  
+- **Zero database dependencies**
+- **Fast cold starts** on Vercel
+- **Template validation** using Flow's InteractionTemplateUtils
+- **Automatic manifest generation**
+- **CORS-enabled** for browser usage
+- **TypeScript** for type safety
