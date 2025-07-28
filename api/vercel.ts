@@ -5,7 +5,6 @@ import fs from "fs";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import initApp from "./src/app";
 import { getConfig } from "./src/config";
-import initDB from "./src/db";
 import { TemplateService } from "./src/services/template";
 
 let app: any = null;
@@ -17,27 +16,19 @@ async function initializeApp() {
   }
 
   const config = getConfig(process.env);
-  const db = initDB(config);
-
-  // Run all database migrations
-  try {
-    await db.migrate.latest();
-  } catch (error) {
-    console.log("Migration error (might be expected in serverless):", error instanceof Error ? error.message : error);
-    // Continue execution even if migrations fail in serverless environment
-  }
 
   // Make sure we're pointing to the correct Flow Access API.
   fcl.config().put("accessNode.api", config.accessApi);
 
   const templateService = new TemplateService(config);
 
-  console.log("...Seeding TemplateService...");
+  console.log("Loading templates into memory...");
   try {
-    await templateService.seed();
-    console.log("Seeded TemplateService!");
+    await templateService.initialize();
+    console.log(`Template loading complete! Loaded ${templateService.getTemplateCount()} templates.`);
   } catch (error) {
-    console.log("Seeding error (continuing anyway):", error instanceof Error ? error.message : error);
+    console.error("Template loading error:", error instanceof Error ? error.message : error);
+    throw error; // Re-throw since templates are critical
   }
 
   const auditorsJSONFile = config.auditorsJsonFile
@@ -48,7 +39,13 @@ async function initializeApp() {
     ? JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"))
     : {};
 
-  app = initApp(templateService, auditorsJSONFile, namesJSONFile);
+  app = initApp(
+    templateService, 
+    auditorsJSONFile, 
+    namesJSONFile,
+    config.allowedOrigins,
+    config.allowCredentials
+  );
   isInitialized = true;
 
   return app;
