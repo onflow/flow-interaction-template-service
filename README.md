@@ -8,21 +8,13 @@ This repository is a place for developers to propose their Interaction Templates
 
 ## Architecture
 
-### Simplified Structure
-The codebase has been simplified from a complex monorepo to a straightforward single-package structure for better readability and maintainability:
-
-- **Single package.json** - No more monorepo complexity
-- **Flat source structure** - All code in `/src` directory  
-- **Direct deployment** - Simple Vercel deployment without nested builds
-- **Clean dependencies** - Only packages actually used by the service
-
 ### In-Memory Storage System
 The service uses a high-performance in-memory storage system that:
-- **Loads templates at startup** from the `./templates` directory
-- **Stores templates in hash maps** for O(1) lookup performance  
-- **Supports 580+ templates** with only ~12MB memory usage
-- **Eliminates database dependencies** for simplified deployment
-- **Perfect for serverless** environments like Vercel
+- Loads templates at startup from the `./templates` directory
+- Stores templates in hash maps for O(1) lookup performance  
+- Supports 580+ templates with only ~12MB memory usage
+- Eliminates database dependencies for simplified deployment
+- Optimized for serverless environments like Vercel
 
 ### Template Loading
 Templates are automatically loaded from:
@@ -97,13 +89,13 @@ Returns auditor information for the specified network.
 
 ## Deployment
 
-### Vercel (Recommended)
-The service is optimized for serverless deployment on Vercel with a simplified structure:
+### Vercel
+The service is optimized for serverless deployment on Vercel:
 
-1. **No database setup required** - templates are loaded from the filesystem
-2. **Fast cold starts** - templates load in 1-2 seconds
-3. **Efficient memory usage** - only ~12MB for 580+ templates
-4. **Simple build process** - single TypeScript compilation step
+1. No database setup required - templates are loaded from the filesystem
+2. Fast cold starts - templates load in 1-2 seconds
+3. Efficient memory usage - only ~12MB for 580+ templates
+4. Simple build process - single TypeScript compilation step
 
 Required environment variables:
 ```bash
@@ -127,7 +119,7 @@ npm start
 ## Development
 
 ### Prerequisites
-- Node.js 20.x
+- Node.js 18.x
 - npm
 
 ### Setup
@@ -145,9 +137,11 @@ npm run build
 npm start
 ```
 
-### Simplified Project Structure
+### Project Structure
 ```
-├── src/                             # All source code
+├── api/                             # Vercel serverless functions
+│   └── index.ts                     # Main serverless function entry point
+├── src/                             # Source code
 │   ├── storage/                     # In-memory storage system
 │   │   └── InMemoryTemplateStorage.ts
 │   ├── services/                    # Business logic layer
@@ -169,40 +163,29 @@ npm start
 │   └── config.ts                    # Configuration management
 ├── templates/                       # Template storage directory
 │   ├── NFTCatalog/                  # NFT catalog templates
+│   │   └── catalog-manifest.json    # Template catalog manifest
 │   ├── FlowCore/                    # Core Flow templates  
+│   ├── EmeraldID/                   # EmeraldID templates
+│   ├── test/                        # Test templates
 │   └── *.template.json              # Individual template files
 ├── auditors/                        # Auditor configuration
-│   └── auditors.json
+│   └── auditors.json                # Network-specific auditor information
 ├── names/                           # Name alias mappings
-│   └── names.json
+│   └── names.json                   # Template name aliases
 ├── proposals/                       # Proposed templates for review
-├── vercel.ts                        # Vercel serverless entry point
-├── vercel.json                      # Vercel deployment config
+├── vercel.json                      # Vercel deployment configuration
 ├── tsconfig.json                    # TypeScript configuration
-└── package.json                     # Single package configuration
+├── package.json                     # Dependencies and scripts
+└── .nvmrc                          # Node.js version specification
 ```
 
 ### Configuration Files
 - **`vercel.json`** - Vercel deployment configuration with serverless function setup
 - **`tsconfig.json`** - TypeScript compilation settings
-- **`package.json`** - Single package with all dependencies and scripts
+- **`package.json`** - Dependencies and build scripts
 - **`auditors/auditors.json`** - Network-specific auditor information
 - **`names/names.json`** - Name aliases for template lookup
 - **Template files** - Individual `.template.json` files containing InteractionTemplate data
-
-## Simplified Architecture Benefits
-
-### Before (Monorepo)
-- **Complex structure**: Multiple package.json files, Lerna configuration
-- **Nested builds**: `api/` subdirectory with separate dependencies
-- **Monorepo overhead**: Extra tooling and complexity for a single service
-- **Confusing paths**: Different import paths for development vs deployment
-
-### After (Single Package)  
-- **Simple structure**: One package.json, flat source directory
-- **Direct builds**: TypeScript compiles directly to dist/
-- **Zero overhead**: No monorepo tooling or extra configuration
-- **Clear paths**: Consistent import paths throughout the codebase
 
 ## Live Service
 
@@ -232,12 +215,6 @@ curl "https://flix.flow.com/v1/auditors?network=mainnet"
 
 This project is open to be run by anyone. By forking this repository and deploying the API service, anyone can run an instance of FLIX and make Interaction Templates available for querying.
 
-The simplified structure makes it easier to deploy:
-- **No monorepo complexity** - single package to install and build
-- **Fast startup times** - direct code execution without nested builds  
-- **Minimal dependencies** - only packages actually used
-- **Clear structure** - easy to understand and modify
-
 If you don't wish to operate your own instance of FLIX, you can use Flow's official instance at `https://flix.flow.com`. To add Interaction Templates to Flow's instance, follow the [Propose Templates](#propose) workflow above.
 
 ## Performance Characteristics
@@ -248,14 +225,13 @@ If you don't wish to operate your own instance of FLIX, you can use Flow's offic
 - **Template Count**: Currently supporting 580+ templates
 - **Data Size**: ~7.5MB of template data
 
-## Notable Features
+## Features
 
-- **Simplified codebase** for better maintainability
-- **In-memory storage** for maximum performance
-- **Serverless-optimized** architecture  
-- **Zero database dependencies**
-- **Fast cold starts** on Vercel
-- **Template validation** using Flow's InteractionTemplateUtils
-- **Automatic manifest generation**
-- **CORS-enabled** for browser usage
-- **TypeScript** for type safety
+- In-memory storage for maximum performance
+- Serverless-optimized architecture  
+- Zero database dependencies
+- Fast cold starts on Vercel
+- Template validation using Flow's InteractionTemplateUtils
+- Automatic manifest generation
+- CORS-enabled for browser usage
+- TypeScript for type safety
