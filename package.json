@@ -1,20 +1,46 @@
 {
-    "name": "flow-templates",
-    "version": "1.0.0",
-    "description": "",
-    "engines": {
-        "node": "20.x"
-    },
-    "scripts": {
-        "start": "cd api && node dist/src/index.js",
-        "postinstall": "npx lerna exec npm install",
-        "heroku-postbuild": "npx lerna exec npm run build",
-        "build": "npx lerna exec npm run build",
-        "vercel-build": "cd api && npm install && npm run build"
-    },
-    "author": "",
-    "license": "ISC",
-    "devDependencies": {
-        "lerna": "^8.1.8"
-    }
+  "name": "flow-interaction-template-service",
+  "version": "1.0.0",
+  "description": "Flow Interaction Template Service with in-memory storage",
+  "main": "src/index.js",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "tsnd src/index.ts --dev",
+    "testnet": "tsnd src/index.ts --dev",
+    "start:worker": "node dist/src/index.js --worker",
+    "start": "node dist/src/index.js",
+    "build": "tsc",
+    "format": "prettier \"src/**/*.ts\"",
+    "format:check": "npm run format -- -c",
+    "format:write": "npm run format -- --write"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@onflow/cadence-parser": "^0.26.0",
+    "@onflow/fcl": "^1.20.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/yargs": "^17.0.33",
+    "@vercel/node": "^3.2.21",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "cron": "^3.1.7",
+    "dotenv": "^16.4.5",
+    "dotenv-expand": "^11.0.6",
+    "express": "^4.21.1",
+    "express-async-errors": "^3.1.1",
+    "glob": "^11.0.0",
+    "mixpanel": "^0.18.0",
+    "node-fetch": "^2.7.0",
+    "sha3": "^2.1.4",
+    "typescript": "^5.6.3",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0"
+  }
 }

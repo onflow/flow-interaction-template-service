@@ -8,6 +8,14 @@ This repository is a place for developers to propose their Interaction Templates
 
 ## Architecture
 
+### Simplified Structure
+The codebase has been simplified from a complex monorepo to a straightforward single-package structure for better readability and maintainability:
+
+- **Single package.json** - No more monorepo complexity
+- **Flat source structure** - All code in `/src` directory  
+- **Direct deployment** - Simple Vercel deployment without nested builds
+- **Clean dependencies** - Only packages actually used by the service
+
 ### In-Memory Storage System
 The service uses a high-performance in-memory storage system that:
 - **Loads templates at startup** from the `./templates` directory
@@ -90,12 +98,12 @@ Returns auditor information for the specified network.
 ## Deployment
 
 ### Vercel (Recommended)
-The service is optimized for serverless deployment on Vercel:
+The service is optimized for serverless deployment on Vercel with a simplified structure:
 
 1. **No database setup required** - templates are loaded from the filesystem
 2. **Fast cold starts** - templates load in 1-2 seconds
 3. **Efficient memory usage** - only ~12MB for 580+ templates
-4. **Automatic deployments** from GitHub
+4. **Simple build process** - single TypeScript compilation step
 
 Required environment variables:
 ```bash
@@ -109,8 +117,9 @@ DISCOVERY_WALLET=https://fcl-discovery.onflow.org/mainnet/authn
 ```
 
 ### Other Platforms
-The service can run on any Node.js hosting platform. Use the build command:
+The service can run on any Node.js hosting platform:
 ```bash
+npm install
 npm run build
 npm start
 ```
@@ -118,8 +127,8 @@ npm start
 ## Development
 
 ### Prerequisites
-- Node.js 20.x or higher
-- npm or yarn
+- Node.js 20.x
+- npm
 
 ### Setup
 ```bash
@@ -136,41 +145,64 @@ npm run build
 npm start
 ```
 
-### Project Structure
+### Simplified Project Structure
 ```
-├── api/                          # Main API service
-│   ├── src/
-│   │   ├── storage/             # In-memory storage system
-│   │   │   └── InMemoryTemplateStorage.ts
-│   │   ├── services/            # Business logic layer
-│   │   │   └── template.ts
-│   │   ├── routes/              # API route definitions
-│   │   │   ├── template.ts      # Template endpoints
-│   │   │   └── auditors.ts      # Auditor endpoints  
-│   │   ├── middlewares/         # Express middleware
-│   │   ├── utils/               # Utility functions
-│   │   ├── app.ts               # Express app configuration
-│   │   ├── index.ts             # Development server entry
-│   │   └── config.ts            # Configuration management
-│   ├── vercel.ts                # Vercel serverless entry point
-│   └── package.json
-├── templates/                   # Template storage directory
-│   ├── NFTCatalog/             # NFT catalog templates
-│   ├── FlowCore/               # Core Flow templates  
-│   └── *.template.json         # Individual template files
-├── auditors/                   # Auditor configuration
+├── src/                             # All source code
+│   ├── storage/                     # In-memory storage system
+│   │   └── InMemoryTemplateStorage.ts
+│   ├── services/                    # Business logic layer
+│   │   └── template.ts
+│   ├── routes/                      # API route definitions
+│   │   ├── template.ts              # Template endpoints
+│   │   └── auditors.ts              # Auditor endpoints  
+│   ├── middlewares/                 # Express middleware
+│   │   └── cors.ts
+│   ├── utils/                       # Utility functions
+│   │   ├── crypto-polyfill.ts
+│   │   ├── gen-hash.ts
+│   │   ├── mixpanel.ts
+│   │   ├── parse-cadence.ts
+│   │   ├── read-files.ts
+│   │   └── write-file.ts
+│   ├── app.ts                       # Express app configuration
+│   ├── index.ts                     # Development server entry
+│   └── config.ts                    # Configuration management
+├── templates/                       # Template storage directory
+│   ├── NFTCatalog/                  # NFT catalog templates
+│   ├── FlowCore/                    # Core Flow templates  
+│   └── *.template.json              # Individual template files
+├── auditors/                        # Auditor configuration
 │   └── auditors.json
-├── names/                      # Name alias mappings
+├── names/                           # Name alias mappings
 │   └── names.json
-├── proposals/                  # Proposed templates for review
-└── vercel.json                 # Vercel deployment config
+├── proposals/                       # Proposed templates for review
+├── vercel.ts                        # Vercel serverless entry point
+├── vercel.json                      # Vercel deployment config
+├── tsconfig.json                    # TypeScript configuration
+└── package.json                     # Single package configuration
 ```
 
 ### Configuration Files
 - **`vercel.json`** - Vercel deployment configuration with serverless function setup
+- **`tsconfig.json`** - TypeScript compilation settings
+- **`package.json`** - Single package with all dependencies and scripts
 - **`auditors/auditors.json`** - Network-specific auditor information
 - **`names/names.json`** - Name aliases for template lookup
 - **Template files** - Individual `.template.json` files containing InteractionTemplate data
+
+## Simplified Architecture Benefits
+
+### Before (Monorepo)
+- **Complex structure**: Multiple package.json files, Lerna configuration
+- **Nested builds**: `api/` subdirectory with separate dependencies
+- **Monorepo overhead**: Extra tooling and complexity for a single service
+- **Confusing paths**: Different import paths for development vs deployment
+
+### After (Single Package)  
+- **Simple structure**: One package.json, flat source directory
+- **Direct builds**: TypeScript compiles directly to dist/
+- **Zero overhead**: No monorepo tooling or extra configuration
+- **Clear paths**: Consistent import paths throughout the codebase
 
 ## Live Service
 
@@ -200,11 +232,11 @@ curl "https://flix.flow.com/v1/auditors?network=mainnet"
 
 This project is open to be run by anyone. By forking this repository and deploying the API service, anyone can run an instance of FLIX and make Interaction Templates available for querying.
 
-The in-memory storage system makes it easy to deploy:
-- **No database setup required**
-- **Fast startup times**  
-- **Minimal memory footprint**
-- **Serverless-friendly architecture**
+The simplified structure makes it easier to deploy:
+- **No monorepo complexity** - single package to install and build
+- **Fast startup times** - direct code execution without nested builds  
+- **Minimal dependencies** - only packages actually used
+- **Clear structure** - easy to understand and modify
 
 If you don't wish to operate your own instance of FLIX, you can use Flow's official instance at `https://flix.flow.com`. To add Interaction Templates to Flow's instance, follow the [Propose Templates](#propose) workflow above.
 
@@ -218,6 +250,7 @@ If you don't wish to operate your own instance of FLIX, you can use Flow's offic
 
 ## Notable Features
 
+- **Simplified codebase** for better maintainability
 - **In-memory storage** for maximum performance
 - **Serverless-optimized** architecture  
 - **Zero database dependencies**
