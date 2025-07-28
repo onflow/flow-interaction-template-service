@@ -1,29 +1,33 @@
 import { json, urlencoded } from "body-parser";
-import cors from "cors";
 import express, { Request, Response } from "express";
 import "express-async-errors";
-import path from "path";
 import templateRouter from "./routes/template";
 import auditorsRouter from "./routes/auditors";
 import { TemplateService } from "./services/template";
+import { createCorsMiddleware, securityHeaders, CorsConfig } from "./middlewares/cors";
 
 const V1 = "/v1/";
-
-const corsOptions = {
-  origin: "*",
-  credentials: true,
-  optionSuccessStatus: 200,
-};
 
 // Init all routes, setup middlewares and dependencies
 const initApp = (
   templateService: TemplateService,
   auditorsJSONFile: JSON,
-  namesJSONFile: JSON
+  namesJSONFile: JSON,
+  allowedOrigins: string = "*",
+  allowCredentials: boolean = true
 ) => {
   const app = express();
 
-  app.use(cors(corsOptions));
+  // Security headers (but keep permissive for public API)
+  app.use(securityHeaders);
+
+  // CORS configuration - allow anyone to call the service
+  const corsConfig: CorsConfig = {
+    allowedOrigins,
+    allowCredentials
+  };
+  app.use(createCorsMiddleware(corsConfig));
+  
   app.use(json());
   app.use(urlencoded({ extended: false }));
 
@@ -92,17 +96,37 @@ const initApp = (
             margin-top: 2rem;
             color: #6b7280;
         }
+        .cors-info {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .cors-title {
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🌊 Flow Interaction Template Service</h1>
-        <div class="status">✓ Service is running</div>
+        <h1>Flow Interaction Template Service</h1>
+        <div class="status">Service is running</div>
         <p>Serving Flow interaction templates via REST API</p>
     </div>
     
+    <div class="cors-info">
+        <div class="cors-title">CORS Configuration</div>
+        <p>This service is configured to handle cross-origin requests from web applications.</p>
+        <p><strong>Allowed Origins:</strong> ${allowedOrigins === "*" ? "All origins (*)" : allowedOrigins}</p>
+        <p><strong>Credentials:</strong> ${allowCredentials ? "Allowed" : "Not allowed"}</p>
+        <p><strong>Status:</strong> Anyone can call this service from any web application</p>
+    </div>
+    
     <div class="endpoints">
-        <h2>📡 Available Endpoints</h2>
+        <h2>Available Endpoints</h2>
         
         <div class="endpoint">
             <div class="method get">GET</div>
@@ -136,7 +160,7 @@ const initApp = (
     </div>
     
     <div class="footer">
-        <p>🚀 Built for the Flow blockchain ecosystem</p>
+        <p>Built for the Flow blockchain ecosystem</p>
     </div>
 </body>
 </html>

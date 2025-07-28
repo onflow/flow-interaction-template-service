@@ -6,6 +6,7 @@ const defaultTemplateDir = "../templates/**/*.json";
 const defaultAuditorsJsonFile = "../auditors/auditors.json";
 const defaultNamesJsonFile = "../names/names.json";
 const defaultTemplateManifestFile = "../templates/NFTCatalog/catalog-manifest.json";
+const defaultAllowedOrigins = "*"; // Default to allow all origins
 
 export function getConfig(env) {
   env = env ?? process.env;
@@ -28,9 +29,14 @@ export function getConfig(env) {
 
   const templateManifestFile = env.TEMPLATE_MANIFEST_FILE || defaultTemplateManifestFile;
 
+  // CORS configuration
+  const allowedOrigins = env.ALLOWED_ORIGINS || defaultAllowedOrigins;
+  const allowCredentials = env.ALLOW_CREDENTIALS === "true" || true;
+
   console.log("ENV: ", env);
   console.log("accessApi", accessApi);
   console.log("databaseMigrationPath: ", databaseMigrationPath);
+  console.log("allowedOrigins: ", allowedOrigins);
 
   return {
     port,
@@ -43,5 +49,7 @@ export function getConfig(env) {
     namesJsonFile,
     peers,
     templateManifestFile,
+    allowedOrigins,
+    allowCredentials,
   };
 }

@@ -92,10 +92,17 @@ async function run() {
       ? JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"))
       : {};
 
-    const app = initApp(templateService, auditorsJSONFile, namesJSONFile);
+    const app = initApp(
+      templateService, 
+      auditorsJSONFile, 
+      namesJSONFile,
+      config.allowedOrigins,
+      config.allowCredentials
+    );
 
     app.listen(config.port, () => {
       console.log(`Listening on port ${config.port}!`);
+      console.log(`CORS configured for origins: ${config.allowedOrigins}`);
     });
   };
 
