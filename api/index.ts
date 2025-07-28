@@ -1,11 +1,11 @@
 // Import crypto polyfill first to ensure crypto.randomUUID is available
-import "./src/utils/crypto-polyfill";
+import "../src/utils/crypto-polyfill";
 import * as fcl from "@onflow/fcl";
 import fs from "fs";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import initApp from "./src/app";
-import { getConfig } from "./src/config";
-import { TemplateService } from "./src/services/template";
+import initApp from "../src/app";
+import { getConfig } from "../src/config";
+import { TemplateService } from "../src/services/template";
 
 let app: any = null;
 let isInitialized = false;

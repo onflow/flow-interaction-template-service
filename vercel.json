@@ -3,15 +3,15 @@
   "routes": [
     {
       "src": "/v1/(.*)",
-      "dest": "/vercel.ts"
+      "dest": "/api"
     },
     {
       "src": "/(.*)",
-      "dest": "/vercel.ts"
+      "dest": "/api"
     }
   ],
   "functions": {
-    "vercel.ts": {
+    "api/index.ts": {
       "runtime": "@vercel/node@3.0.7",
       "includeFiles": "{templates,auditors,names}/**"
     }
