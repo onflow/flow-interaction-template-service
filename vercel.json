@@ -1,18 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/vercel.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "templates/**",
-          "auditors/**",
-          "names/**"
-        ]
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/v1/(.*)",
@@ -25,7 +12,12 @@
   ],
   "functions": {
     "api/vercel.ts": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs20.x",
+      "includeFiles": [
+        "templates/**",
+        "auditors/**",
+        "names/**"
+      ]
     }
   },
   "env": {
