@@ -1,4 +1,4 @@
-import glob from "glob";
+import { glob } from "glob";
 import fs from "fs";
 
 export interface File {
@@ -9,7 +9,7 @@ export interface File {
 export function readFiles(pattern: string): Promise<File[]> {
   return new Promise((res, rej) => {
     try {
-      glob(pattern, {}, function (err, paths: string[]) {
+      glob(pattern, {}).then((paths: string[]) => {
         const fileReadPromises = paths.map(
           (path) =>
             new Promise<File>((fsRes, fsRej) => {
@@ -33,7 +33,7 @@ export function readFiles(pattern: string): Promise<File[]> {
         return Promise.all(fileReadPromises).then((files: File[]) =>
           res(files)
         );
-      });
+      }).catch(rej);
     } catch (e) {
       rej(e);
     }

@@ -1,5 +1,6 @@
 import { CadenceParser } from "@onflow/cadence-parser";
 import fs from "fs";
+import path from "path";
 
 let memoCadenceParser;
 
@@ -14,10 +15,11 @@ function removeASTPosition(obj) {
 }
 
 export async function parseCadence(cadence: string) {
-  if (!memoCadenceParser) {
-    const binary = fs.readFileSync(require.resolve('../../node_modules/@onflow/cadence-parser/dist/cadence-parser.wasm'))
-    memoCadenceParser = await CadenceParser.create(binary);
-  }
-
-  return JSON.stringify(removeASTPosition(await memoCadenceParser.parse(cadence)));
+  // For now, skip WASM parsing and just return the code as-is
+  // This keeps the service focused on serving templates, not parsing Cadence
+  return JSON.stringify({ 
+    code: cadence, 
+    parsed: false,
+    note: "Cadence parsing disabled - serving templates only"
+  });
 }

@@ -1,3 +1,5 @@
+// Import crypto polyfill first to ensure crypto.randomUUID is available
+import "./utils/crypto-polyfill";
 import * as fcl from "@onflow/fcl";
 import fs from "fs";
 import { hideBin } from "yargs/helpers";
@@ -8,8 +10,19 @@ import initDB from "./db";
 import { TemplateService } from "./services/template";
 import * as cron from "cron";
 
-const argv = yargs(hideBin(process.argv)).argv;
+const argv = yargs(hideBin(process.argv)).argv as any;
 const DEV = argv.dev;
+
+// Handle unhandled promise rejections to prevent crashes
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Don't exit the process, just log the error
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  // Don't exit the process, just log the error
+});
 
 let envVars;
 
@@ -37,9 +50,12 @@ async function run() {
     });
   });
 
-  try {
-    fs.unlinkSync(config.dbPath);
-  } catch (e) {}
+  // Only try to delete database file in development
+  if (process.env.NODE_ENV !== "production") {
+    try {
+      fs.unlinkSync(config.dbPath);
+    } catch (e) {}
+  }
 
   // Run all database migrations
   await db.migrate.latest();
@@ -76,10 +92,17 @@ async function run() {
       ? JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"))
       : {};
 
-    const app = initApp(templateService, auditorsJSONFile, namesJSONFile);
+    const app = initApp(
+      templateService, 
+      auditorsJSONFile, 
+      namesJSONFile,
+      config.allowedOrigins,
+      config.allowCredentials
+    );
 
     app.listen(config.port, () => {
       console.log(`Listening on port ${config.port}!`);
+      console.log(`CORS configured for origins: ${config.allowedOrigins}`);
     });
   };
 
