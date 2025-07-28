@@ -1,6 +1,4 @@
 import express, { Request, Response, Router } from "express";
-import { body } from "express-validator";
-import { validateRequest } from "../middlewares/validate-request";
 import { TemplateService } from "../services/template";
 import { genHash } from "../utils/gen-hash";
 import { mixpanelTrack } from "../utils/mixpanel";

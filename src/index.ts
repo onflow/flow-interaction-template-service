@@ -6,7 +6,6 @@ import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
 import initApp from "./app";
 import { getConfig } from "./config";
-import initDB from "./db";
 import { TemplateService } from "./services/template";
 import * as cron from "cron";
 
@@ -16,11 +15,6 @@ const DEV = argv.dev;
 // Handle unhandled promise rejections to prevent crashes
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Don't exit the process, just log the error
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
   // Don't exit the process, just log the error
 });
 
@@ -41,43 +35,26 @@ if (DEV) {
 
 async function run() {
   const config = getConfig(envVars);
-  const db = initDB(config);
-
-  // Make sure to disconnect from DB when exiting the process
-  process.on("SIGTERM", () => {
-    db.destroy().then(() => {
-      process.exit(0);
-    });
-  });
-
-  // Only try to delete database file in development
-  if (process.env.NODE_ENV !== "production") {
-    try {
-      fs.unlinkSync(config.dbPath);
-    } catch (e) {}
-  }
-
-  // Run all database migrations
-  await db.migrate.latest();
 
   // Make sure we're pointing to the correct Flow Access API.
   fcl.config().put("accessNode.api", config.accessApi);
 
   const startAPIServer = async () => {
-    console.log("Starting API server ....");
+    console.log("Starting API server with in-memory template storage...");
     const templateService = new TemplateService(config);
 
-    console.log("...Seeding TemplateService...");
-    await templateService.seed();
-    console.log("Seeded TemplateService!");
+    console.log("Loading templates into memory...");
+    await templateService.initialize();
+    console.log(`Template loading complete! Loaded ${templateService.getTemplateCount()} templates.`);
 
+    // Set up periodic reloading (optional - for dynamic updates if needed)
     const CronJob = cron.CronJob;
     const job = new CronJob(
       "*/5 * * * *",
       async function () {
-        console.log("...Syncing TemplateService...");
-        await templateService.seed();
-        console.log("Synched TemplateService!");
+        console.log("Reloading templates...");
+        await templateService.initialize();
+        console.log(`Template reload complete! ${templateService.getTemplateCount()} templates loaded.`);
       },
       null,
       true,
@@ -109,9 +86,7 @@ async function run() {
   await startAPIServer();
 }
 
-const redOutput = "\x1b[31m%s\x1b[0m";
-
 run().catch((e) => {
-  console.error(redOutput, e);
+  console.error("Failed to start server:", e);
   process.exit(1);
 });
