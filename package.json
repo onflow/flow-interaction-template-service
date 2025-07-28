@@ -4,7 +4,7 @@
   "description": "Flow Interaction Template Service with in-memory storage",
   "main": "src/index.js",
   "engines": {
-    "node": ">=20.x"
+    "node": "18.x"
   },
   "scripts": {
     "dev": "tsnd src/index.ts --dev",
