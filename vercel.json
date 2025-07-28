@@ -12,7 +12,7 @@
   ],
   "functions": {
     "api/vercel.ts": {
-      "runtime": "nodejs20.x",
+      "runtime": "@vercel/node@3.0.7",
       "includeFiles": "{templates,auditors,names}/**"
     }
   },
