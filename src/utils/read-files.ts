@@ -12,27 +12,43 @@ export function readFiles(pattern: string): Promise<File[]> {
       glob(pattern, {}).then((paths: string[]) => {
         const fileReadPromises = paths.map(
           (path) =>
-            new Promise<File>((fsRes, fsRej) => {
+            new Promise<File | null>((fsRes, fsRej) => {
               try {
-                fs.readFile(path, "utf8", function (err: any, data: any) {
-                  if (err) {
-                    fsRej(err);
+                // Check if the path is a file before trying to read it
+                fs.stat(path, (statErr, stats) => {
+                  if (statErr) {
+                    fsRej(statErr);
                     return;
                   }
-                  const file: File = {
-                    path,
-                    content: data,
-                  };
-                  fsRes(file);
+                  
+                  // Only read if it's a file, skip directories
+                  if (!stats.isFile()) {
+                    fsRes(null); // Return null for directories
+                    return;
+                  }
+                  
+                  fs.readFile(path, "utf8", function (err: any, data: any) {
+                    if (err) {
+                      fsRej(err);
+                      return;
+                    }
+                    const file: File = {
+                      path,
+                      content: data,
+                    };
+                    fsRes(file);
+                  });
                 });
               } catch (e) {
                 fsRej(e);
               }
             })
         );
-        return Promise.all(fileReadPromises).then((files: File[]) =>
-          res(files)
-        );
+        return Promise.all(fileReadPromises).then((files: (File | null)[]) => {
+          // Filter out null values (directories)
+          const validFiles = files.filter((file): file is File => file !== null);
+          res(validFiles);
+        });
       }).catch(rej);
     } catch (e) {
       rej(e);
