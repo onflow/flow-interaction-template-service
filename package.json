@@ -2,15 +2,19 @@
     "name": "flow-templates",
     "version": "1.0.0",
     "description": "",
+    "engines": {
+        "node": ">=20.0.0"
+    },
     "scripts": {
-        "start": "cd api && node dist/index.js",
+        "start": "cd api && node dist/src/index.js",
         "postinstall": "npx lerna exec npm install",
         "heroku-postbuild": "npx lerna exec npm run build",
-        "build": "npx lerna exec npm run build"
+        "build": "npx lerna exec npm run build",
+        "vercel-build": "cd api && npm install && npm run build"
     },
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "lerna": "^5.2.0"
+        "lerna": "^8.1.8"
     }
 }

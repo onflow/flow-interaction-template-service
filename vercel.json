@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/vercel.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "templates/**",
+          "auditors/**",
+          "names/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/v1/(.*)",
+      "dest": "/api/vercel.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/vercel.ts"
+    }
+  ],
+  "functions": {
+    "api/vercel.ts": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "FLOW_ACCESS_API_URL": "https://rest-mainnet.onflow.org",
+    "DATABASE_PATH": "/tmp/flow-templates-db.sqlite",
+    "DATABASE_URL": "sqlite:/tmp/flow-templates-db.sqlite",
+    "AUDITORS_JSON_FILE": "./auditors/auditors.json",
+    "NAMES_JSON_FILE": "./names/names.json",
+    "TEMPLATE_DIR": "./templates",
+    "FLOW_NETWORK": "mainnet",
+    "DISCOVERY_WALLET": "https://fcl-discovery.onflow.org/mainnet/authn"
+  }
+} 
