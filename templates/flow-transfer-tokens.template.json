@@ -1,23 +1,23 @@
 {
   "f_type": "InteractionTemplate",
   "f_version": "1.0.0",
-  "id": "290b6b6222b2a77b16db896a80ddf29ebd1fa3038c9e6625a933fa213fce51fa",
+  "id": "c746615a6ca8b51aaa660d7a06b19f8916b89f0d10a8269320833c27cb93e215",
   "data": {
     "type": "transaction",
     "interface": "",
     "messages": {
       "title": {
         "i18n": {
-          "en-US": "Transfer Tokens"
+          "en-US": "Transfer Flow Tokens"
         }
       },
       "description": {
         "i18n": {
-          "en-US": "Transfer tokens from one account to another"
+          "en-US": "Transfer Flow tokens from your account to another account on the Flow blockchain"
         }
       }
     },
-    "cadence": "import FungibleToken from 0xFUNGIBLETOKENADDRESS\ntransaction(amount: UFix64, to: Address) {\nlet vault: @FungibleToken.Vault\nprepare(signer: AuthAccount) {\nself.vault <- signer\n.borrow<&{FungibleToken.Provider}>(from: /storage/flowTokenVault)!\n.withdraw(amount: amount)\n}\nexecute {\ngetAccount(to)\n.getCapability(/public/flowTokenReceiver)!\n.borrow<&{FungibleToken.Receiver}>()!\n.deposit(from: <-self.vault)\n}\n}",
+    "cadence": "import FungibleToken from 0xFUNGIBLETOKENADDRESS\n\ntransaction(amount: UFix64, to: Address) {\n\n    let vault: @{FungibleToken.Vault}\n\n    prepare(signer: auth(BorrowValue) &Account) {\n        self.vault <- signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: /storage/flowTokenVault)!\n            .withdraw(amount: amount)\n    }\n\n    execute {\n        getAccount(to).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!\n            .deposit(from: <-self.vault)\n    }\n}",
     "dependencies": {
       "0xFUNGIBLETOKENADDRESS": {
         "FungibleToken": {
@@ -34,6 +34,13 @@
             "contract": "FungibleToken",
             "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
             "pin_block_height": 74776482
+          },
+          "emulator": {
+            "address": "0xee82856bf20e2aa6",
+            "fq_address": "A.0xee82856bf20e2aa6.FungibleToken",
+            "contract": "FungibleToken",
+            "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
+            "pin_block_height": 0
           }
         }
       }
@@ -45,11 +52,15 @@
         "messages": {
           "title": {
             "i18n": {
-              "en-US": "The amount of FLOW tokens to send"
+              "en-US": "Amount to Transfer"
+            }
+          },
+          "description": {
+            "i18n": {
+              "en-US": "The amount of Flow tokens to transfer (in Flow, not UFix64 units)"
             }
           }
-        },
-        "balance": ""
+        }
       },
       "to": {
         "index": 1,
@@ -57,11 +68,15 @@
         "messages": {
           "title": {
             "i18n": {
-              "en-US": "The Flow account the tokens will go to"
+              "en-US": "Recipient Address"
+            }
+          },
+          "description": {
+            "i18n": {
+              "en-US": "The Flow account address that will receive the tokens"
             }
           }
-        },
-        "balance": ""
+        }
       }
     }
   }
