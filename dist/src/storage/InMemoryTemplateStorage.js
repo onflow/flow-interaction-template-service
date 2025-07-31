@@ -120,7 +120,6 @@ class InMemoryTemplateStorage {
                 };
                 this.templatesById.set(parsedTemplate.id, templateRecord);
                 this.templateManifest[parsedTemplate.id] = parsedTemplate;
-                console.log(`Loaded template: ${parsedTemplate.id}`);
             }
             catch (e) {
                 console.warn(`Skipping template due to error:`, e);
