@@ -11,7 +11,9 @@
     "testnet": "tsnd src/index.ts --dev",
     "start:worker": "node dist/src/index.js --worker",
     "start": "node dist/src/index.js",
-    "build": "tsc",
+    "build": "npm run build:templates && tsc",
+    "build:templates": "node scripts/build-templates.js",
+    "build:vercel": "npm run build:templates && tsc",
     "format": "prettier \"src/**/*.ts\"",
     "format:check": "npm run format -- -c",
     "format:write": "npm run format -- --write"
@@ -27,7 +29,6 @@
     "@vercel/node": "^2.3.0",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "cron": "^3.1.7",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
     "express": "^4.21.1",

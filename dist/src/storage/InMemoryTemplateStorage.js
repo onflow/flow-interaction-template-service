@@ -55,13 +55,23 @@ class InMemoryTemplateStorage {
     async initialize() {
         console.log("Loading templates into memory...");
         let templates = [];
-        // Load local template files
-        const localTemplates = (await (0, read_files_1.readFiles)(this.config.templateDir))
-            .map((file) => file.content)
-            .filter((file) => file !== null)
-            .map((file) => JSON.parse(file));
-        console.log(`Found ${localTemplates.length} local template files`);
-        templates = templates.concat(localTemplates);
+        // Try to load pre-built templates first (for Vercel/production)
+        try {
+            const preBuiltPath = require.resolve("../../dist/templates.json");
+            const preBuiltTemplates = require(preBuiltPath);
+            console.log(`Found ${preBuiltTemplates.length} pre-built templates`);
+            templates = templates.concat(preBuiltTemplates);
+        }
+        catch (e) {
+            // Fallback to glob loading (for development)
+            console.log("Pre-built templates not found, using glob loading...");
+            const localTemplates = (await (0, read_files_1.readFiles)(this.config.templateDir))
+                .map((file) => file.content)
+                .filter((file) => file !== null)
+                .map((file) => JSON.parse(file));
+            console.log(`Found ${localTemplates.length} local template files`);
+            templates = templates.concat(localTemplates);
+        }
         // Load from peers if configured
         const peers = this.config.peers ? this.config.peers.split(",") : [];
         for (const peer of peers) {
@@ -81,13 +91,24 @@ class InMemoryTemplateStorage {
         }
         // Load existing manifest
         try {
-            const existingManifest = (await (0, read_files_1.readFiles)(this.config.templateManifestFile))
-                .map((file) => file.content)[0];
+            // Try pre-built manifest first
+            let existingManifest;
+            try {
+                const preBuiltManifestPath = require.resolve("../../dist/template-manifest.json");
+                existingManifest = require(preBuiltManifestPath);
+                console.log(`Found pre-built manifest with ${Object.values(existingManifest).length} templates`);
+            }
+            catch (e) {
+                // Fallback to file-based manifest
+                const manifestFiles = await (0, read_files_1.readFiles)(this.config.templateManifestFile);
+                if (manifestFiles.length > 0) {
+                    existingManifest = JSON.parse(manifestFiles[0].content);
+                    console.log(`Found local manifest with ${Object.values(existingManifest).length} templates`);
+                }
+            }
             if (existingManifest) {
-                const parsed = JSON.parse(existingManifest);
-                console.log(`Found local manifest with ${Object.values(parsed).length} templates`);
-                templates = templates.concat(Object.values(parsed));
-                this.templateManifest = parsed;
+                templates = templates.concat(Object.values(existingManifest));
+                this.templateManifest = existingManifest;
             }
         }
         catch (e) {
