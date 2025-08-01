@@ -24,5 +24,35 @@ class TemplateService {
     getTemplateCount() {
         return this.storage.getTemplateCount();
     }
+    /**
+     * Load name aliases into the template index
+     */
+    loadNameAliases(namesJson) {
+        this.storage.loadNameAliases(namesJson);
+    }
+    /**
+     * Search templates using various filters
+     */
+    searchTemplates(filters) {
+        return this.storage.searchTemplates(filters);
+    }
+    /**
+     * Get template by name using the index
+     */
+    getTemplateByName(name) {
+        return this.storage.getTemplateByName(name);
+    }
+    /**
+     * Get all names for a template ID
+     */
+    getNamesForTemplate(templateId) {
+        return this.storage.getNamesForTemplate(templateId);
+    }
+    /**
+     * Get index statistics
+     */
+    getIndexStats() {
+        return this.storage.getIndexStats();
+    }
 }
 exports.TemplateService = TemplateService;

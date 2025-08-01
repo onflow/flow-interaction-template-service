@@ -56,7 +56,7 @@ process.on('unhandledRejection', (reason, promise) => {
 let envVars;
 if (DEV) {
     const env = require("dotenv");
-    const expandEnv = require("dotenv-expand");
+    const expandEnv = require("dotenv-expand").expand;
     const config = env.config({
         path: process.cwd() + "/.env.local",
     });
@@ -74,12 +74,22 @@ async function run() {
         console.log("Loading templates into memory...");
         await templateService.initialize();
         console.log(`Template loading complete! Loaded ${templateService.getTemplateCount()} templates.`);
+        // Load name aliases from names.json
+        if (config.namesJsonFile) {
+            const namesJSONFile = JSON.parse(fs_1.default.readFileSync(config.namesJsonFile, "utf8"));
+            templateService.loadNameAliases(namesJSONFile);
+        }
         // Set up periodic reloading (optional - for dynamic updates if needed)
         const CronJob = cron.CronJob;
         const job = new CronJob("*/5 * * * *", async function () {
             console.log("Reloading templates...");
             await templateService.initialize();
             console.log(`Template reload complete! ${templateService.getTemplateCount()} templates loaded.`);
+            // Reload name aliases
+            if (config.namesJsonFile) {
+                const namesJSONFile = JSON.parse(fs_1.default.readFileSync(config.namesJsonFile, "utf8"));
+                templateService.loadNameAliases(namesJSONFile);
+            }
         }, null, true, "America/Los_Angeles");
         const auditorsJSONFile = config.auditorsJsonFile
             ? JSON.parse(fs_1.default.readFileSync(config.auditorsJsonFile, "utf8"))

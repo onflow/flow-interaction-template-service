@@ -4,6 +4,7 @@ import { readFiles } from "../utils/read-files";
 import { writeFile } from "../utils/write-file";
 import { genHash } from "../utils/gen-hash";
 import { parseCadence } from "../utils/parse-cadence";
+import { TemplateIndexService, SearchFilters } from "../services/templateIndex";
 
 interface Template {
   id: string;
@@ -19,6 +20,7 @@ export class InMemoryTemplateStorage {
   private templatesByTestnetHash: Map<string, Template> = new Map();
   private templateManifest: any = {};
   private config: any;
+  private indexService: TemplateIndexService = new TemplateIndexService();
 
   constructor(config: any) {
     this.config = config;
@@ -30,10 +32,37 @@ export class InMemoryTemplateStorage {
     let templates: any[] = [];
 
     // Load local template files
-    const localTemplates = (await readFiles(this.config.templateDir))
-      .map((file: any) => file.content)
-      .filter((file) => file !== null)
-      .map((file) => JSON.parse(file));
+    const rawFiles = await readFiles(this.config.templateDir);
+    console.log(`Found ${rawFiles.length} raw files to process`);
+    const localTemplates: any[] = [];
+    
+    for (const rawFile of rawFiles) {
+      
+      if (!rawFile.content) {
+        console.log(`Skipping file with no content: ${rawFile.path}`);
+        continue;
+      }
+      
+      try {
+        // Skip the manifest file - it shouldn't be processed as a template
+        if (rawFile.path.endsWith('catalog-manifest.json')) {
+          console.log(`Skipping manifest file: ${rawFile.path}`);
+          continue;
+        }
+        
+        // Skip empty files
+        if (rawFile.content.trim() === '') {
+          console.warn(`Skipping empty file: ${rawFile.path}`);
+          continue;
+        }
+        
+        const parsed = JSON.parse(rawFile.content);
+        localTemplates.push(parsed);
+      } catch (e) {
+        console.warn(`Skipping invalid JSON file ${rawFile.path}:`, e instanceof Error ? e.message : e);
+        continue;
+      }
+    }
 
     console.log(`Found ${localTemplates.length} local template files`);
     templates = templates.concat(localTemplates);
@@ -76,7 +105,7 @@ export class InMemoryTemplateStorage {
       try {
         const parsedTemplate = typeof template === "object" ? template : JSON.parse(template);
 
-        if (template.f_type !== "InteractionTemplate" || template.f_version !== "1.0.0") {
+        if (parsedTemplate.f_type !== "InteractionTemplate" || parsedTemplate.f_version !== "1.0.0") {
           continue;
         }
 
@@ -89,11 +118,6 @@ export class InMemoryTemplateStorage {
           continue;
         }
 
-        if (this.templatesById.has(parsedTemplate.id)) {
-          console.log(`Skipping duplicate template with ID = ${parsedTemplate.id}`);
-          continue;
-        }
-
         // Store template
         const templateRecord: Template = {
           id: parsedTemplate.id,
@@ -103,6 +127,9 @@ export class InMemoryTemplateStorage {
 
         this.templatesById.set(parsedTemplate.id, templateRecord);
         this.templateManifest[parsedTemplate.id] = parsedTemplate;
+        
+        // Index this template (names will be added later from names.json)
+        this.indexService.indexTemplate(parsedTemplate);
 
       } catch (e) {
         console.warn(`Skipping template due to error:`, e);
@@ -120,6 +147,25 @@ export class InMemoryTemplateStorage {
     }
 
     console.log(`Successfully loaded ${this.templatesById.size} templates into memory`);
+  }
+
+  /**
+   * Load name aliases from names.json into the index
+   */
+  public loadNameAliases(namesJson: any): void {
+    console.log("Loading name aliases into template index...");
+    let aliasCount = 0;
+    
+    for (const [name, templateId] of Object.entries(namesJson)) {
+      if (typeof templateId === 'string') {
+        if (this.indexService.addNameAlias(templateId, name)) {
+          aliasCount++;
+        }
+      }
+    }
+    
+    console.log(`Added ${aliasCount} name aliases to template index`);
+    console.log("Template index statistics:", this.indexService.getStats());
   }
 
   getTemplate(templateId: string): any | null {
@@ -168,5 +214,33 @@ export class InMemoryTemplateStorage {
 
   getTemplateCount(): number {
     return this.templatesById.size;
+  }
+
+  /**
+   * Search templates using the index service
+   */
+  public searchTemplates(filters: SearchFilters): any[] {
+    return this.indexService.search(filters);
+  }
+
+  /**
+   * Get template by name using the index service
+   */
+  public getTemplateByName(name: string): any | null {
+    return this.indexService.getByName(name);
+  }
+
+  /**
+   * Get all names for a template ID
+   */
+  public getNamesForTemplate(templateId: string): string[] {
+    return this.indexService.getNamesForId(templateId);
+  }
+
+  /**
+   * Get index statistics
+   */
+  public getIndexStats(): any {
+    return this.indexService.getStats();
   }
 } 

@@ -43,12 +43,14 @@ const read_files_1 = require("../utils/read-files");
 const write_file_1 = require("../utils/write-file");
 const gen_hash_1 = require("../utils/gen-hash");
 const parse_cadence_1 = require("../utils/parse-cadence");
+const templateIndex_1 = require("../services/templateIndex");
 class InMemoryTemplateStorage {
     templatesById = new Map();
     templatesByMainnetHash = new Map();
     templatesByTestnetHash = new Map();
     templateManifest = {};
     config;
+    indexService = new templateIndex_1.TemplateIndexService();
     constructor(config) {
         this.config = config;
     }
@@ -56,10 +58,33 @@ class InMemoryTemplateStorage {
         console.log("Loading templates into memory...");
         let templates = [];
         // Load local template files
-        const localTemplates = (await (0, read_files_1.readFiles)(this.config.templateDir))
-            .map((file) => file.content)
-            .filter((file) => file !== null)
-            .map((file) => JSON.parse(file));
+        const rawFiles = await (0, read_files_1.readFiles)(this.config.templateDir);
+        console.log(`Found ${rawFiles.length} raw files to process`);
+        const localTemplates = [];
+        for (const rawFile of rawFiles) {
+            if (!rawFile.content) {
+                console.log(`Skipping file with no content: ${rawFile.path}`);
+                continue;
+            }
+            try {
+                // Skip the manifest file - it shouldn't be processed as a template
+                if (rawFile.path.endsWith('catalog-manifest.json')) {
+                    console.log(`Skipping manifest file: ${rawFile.path}`);
+                    continue;
+                }
+                // Skip empty files
+                if (rawFile.content.trim() === '') {
+                    console.warn(`Skipping empty file: ${rawFile.path}`);
+                    continue;
+                }
+                const parsed = JSON.parse(rawFile.content);
+                localTemplates.push(parsed);
+            }
+            catch (e) {
+                console.warn(`Skipping invalid JSON file ${rawFile.path}:`, e instanceof Error ? e.message : e);
+                continue;
+            }
+        }
         console.log(`Found ${localTemplates.length} local template files`);
         templates = templates.concat(localTemplates);
         // Load from peers if configured
@@ -98,7 +123,7 @@ class InMemoryTemplateStorage {
         for (const template of templates) {
             try {
                 const parsedTemplate = typeof template === "object" ? template : JSON.parse(template);
-                if (template.f_type !== "InteractionTemplate" || template.f_version !== "1.0.0") {
+                if (parsedTemplate.f_type !== "InteractionTemplate" || parsedTemplate.f_version !== "1.0.0") {
                     continue;
                 }
                 const recomputedTemplateID = await fcl.InteractionTemplateUtils.generateTemplateId({
@@ -106,10 +131,6 @@ class InMemoryTemplateStorage {
                 });
                 if (recomputedTemplateID !== parsedTemplate.id) {
                     console.warn(`Template ID mismatch: recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`);
-                    continue;
-                }
-                if (this.templatesById.has(parsedTemplate.id)) {
-                    console.log(`Skipping duplicate template with ID = ${parsedTemplate.id}`);
                     continue;
                 }
                 // Store template
@@ -120,6 +141,8 @@ class InMemoryTemplateStorage {
                 };
                 this.templatesById.set(parsedTemplate.id, templateRecord);
                 this.templateManifest[parsedTemplate.id] = parsedTemplate;
+                // Index this template (names will be added later from names.json)
+                this.indexService.indexTemplate(parsedTemplate);
             }
             catch (e) {
                 console.warn(`Skipping template due to error:`, e);
@@ -133,6 +156,22 @@ class InMemoryTemplateStorage {
             console.warn("Failed to write manifest file:", e);
         }
         console.log(`Successfully loaded ${this.templatesById.size} templates into memory`);
+    }
+    /**
+     * Load name aliases from names.json into the index
+     */
+    loadNameAliases(namesJson) {
+        console.log("Loading name aliases into template index...");
+        let aliasCount = 0;
+        for (const [name, templateId] of Object.entries(namesJson)) {
+            if (typeof templateId === 'string') {
+                if (this.indexService.addNameAlias(templateId, name)) {
+                    aliasCount++;
+                }
+            }
+        }
+        console.log(`Added ${aliasCount} name aliases to template index`);
+        console.log("Template index statistics:", this.indexService.getStats());
     }
     getTemplate(templateId) {
         const template = this.templatesById.get(templateId);
@@ -174,6 +213,30 @@ class InMemoryTemplateStorage {
     }
     getTemplateCount() {
         return this.templatesById.size;
+    }
+    /**
+     * Search templates using the index service
+     */
+    searchTemplates(filters) {
+        return this.indexService.search(filters);
+    }
+    /**
+     * Get template by name using the index service
+     */
+    getTemplateByName(name) {
+        return this.indexService.getByName(name);
+    }
+    /**
+     * Get all names for a template ID
+     */
+    getNamesForTemplate(templateId) {
+        return this.indexService.getNamesForId(templateId);
+    }
+    /**
+     * Get index statistics
+     */
+    getIndexStats() {
+        return this.indexService.getStats();
     }
 }
 exports.InMemoryTemplateStorage = InMemoryTemplateStorage;

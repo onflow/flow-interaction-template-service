@@ -58,6 +58,11 @@ async function initializeApp() {
     try {
         await templateService.initialize();
         console.log(`Template loading complete! Loaded ${templateService.getTemplateCount()} templates.`);
+        // Load name aliases from names.json
+        if (config.namesJsonFile) {
+            const namesJSONFile = JSON.parse(fs_1.default.readFileSync(config.namesJsonFile, "utf8"));
+            templateService.loadNameAliases(namesJSONFile);
+        }
     }
     catch (error) {
         console.error("Template loading error:", error instanceof Error ? error.message : error);

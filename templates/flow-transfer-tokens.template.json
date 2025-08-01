@@ -1,14 +1,14 @@
 {
   "f_type": "InteractionTemplate",
   "f_version": "1.0.0",
-  "id": "c746615a6ca8b51aaa660d7a06b19f8916b89f0d10a8269320833c27cb93e215",
+  "id": "4431a123049f8046a69c779672fcdd342b870371601040d4eb572158f5e6ee97",
   "data": {
     "type": "transaction",
     "interface": "",
     "messages": {
       "title": {
         "i18n": {
-          "en-US": "Transfer Tokens"
+          "en-US": "Transfer Flow Tokens"
         }
       },
       "description": {

@@ -9,7 +9,15 @@ const fs_1 = __importDefault(require("fs"));
 function readFiles(pattern) {
     return new Promise((res, rej) => {
         try {
-            (0, glob_1.glob)(pattern, {}).then((paths) => {
+            // Handle both subdirectories and root directory templates
+            const patterns = [
+                pattern, // Original pattern for subdirectories
+                pattern.replace('/**/', '/') // Modified pattern for root directory
+            ];
+            Promise.all(patterns.map(p => (0, glob_1.glob)(p, {}))).then((allPaths) => {
+                // Flatten and deduplicate paths
+                const uniquePaths = [...new Set(allPaths.flat())];
+                const paths = uniquePaths;
                 const fileReadPromises = paths.map((path) => new Promise((fsRes, fsRej) => {
                     try {
                         // Check if the path is a file before trying to read it

@@ -9,7 +9,16 @@ export interface File {
 export function readFiles(pattern: string): Promise<File[]> {
   return new Promise((res, rej) => {
     try {
-      glob(pattern, {}).then((paths: string[]) => {
+      // Handle both subdirectories and root directory templates
+      const patterns = [
+        pattern, // Original pattern for subdirectories
+        pattern.replace('/**/', '/') // Modified pattern for root directory
+      ];
+      
+      Promise.all(patterns.map(p => glob(p, {}))).then((allPaths) => {
+        // Flatten and deduplicate paths
+        const uniquePaths = [...new Set(allPaths.flat())];
+        const paths = uniquePaths;
         const fileReadPromises = paths.map(
           (path) =>
             new Promise<File | null>((fsRes, fsRej) => {

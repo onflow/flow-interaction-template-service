@@ -22,7 +22,7 @@ let envVars;
 
 if (DEV) {
   const env = require("dotenv");
-  const expandEnv = require("dotenv-expand");
+  const expandEnv = require("dotenv-expand").expand;
 
   const config = env.config({
     path: process.cwd() + "/.env.local",
@@ -46,6 +46,12 @@ async function run() {
     console.log("Loading templates into memory...");
     await templateService.initialize();
     console.log(`Template loading complete! Loaded ${templateService.getTemplateCount()} templates.`);
+    
+    // Load name aliases from names.json
+    if (config.namesJsonFile) {
+      const namesJSONFile = JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"));
+      templateService.loadNameAliases(namesJSONFile);
+    }
 
     // Set up periodic reloading (optional - for dynamic updates if needed)
     const CronJob = cron.CronJob;
@@ -55,6 +61,12 @@ async function run() {
         console.log("Reloading templates...");
         await templateService.initialize();
         console.log(`Template reload complete! ${templateService.getTemplateCount()} templates loaded.`);
+        
+        // Reload name aliases
+        if (config.namesJsonFile) {
+          const namesJSONFile = JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"));
+          templateService.loadNameAliases(namesJSONFile);
+        }
       },
       null,
       true,
