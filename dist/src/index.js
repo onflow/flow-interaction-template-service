@@ -45,7 +45,6 @@ const yargs_1 = __importDefault(require("yargs/yargs"));
 const app_1 = __importDefault(require("./app"));
 const config_1 = require("./config");
 const template_1 = require("./services/template");
-const cron = __importStar(require("cron"));
 const argv = (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv)).argv;
 const DEV = argv.dev;
 // Handle unhandled promise rejections to prevent crashes
@@ -74,13 +73,6 @@ async function run() {
         console.log("Loading templates into memory...");
         await templateService.initialize();
         console.log(`Template loading complete! Loaded ${templateService.getTemplateCount()} templates.`);
-        // Set up periodic reloading (optional - for dynamic updates if needed)
-        const CronJob = cron.CronJob;
-        const job = new CronJob("*/5 * * * *", async function () {
-            console.log("Reloading templates...");
-            await templateService.initialize();
-            console.log(`Template reload complete! ${templateService.getTemplateCount()} templates loaded.`);
-        }, null, true, "America/Los_Angeles");
         const auditorsJSONFile = config.auditorsJsonFile
             ? JSON.parse(fs_1.default.readFileSync(config.auditorsJsonFile, "utf8"))
             : {};

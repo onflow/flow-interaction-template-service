@@ -7,7 +7,7 @@ import yargs from "yargs/yargs";
 import initApp from "./app";
 import { getConfig } from "./config";
 import { TemplateService } from "./services/template";
-import * as cron from "cron";
+
 
 const argv = yargs(hideBin(process.argv)).argv as any;
 const DEV = argv.dev;
@@ -47,25 +47,13 @@ async function run() {
     await templateService.initialize();
     console.log(`Template loading complete! Loaded ${templateService.getTemplateCount()} templates.`);
 
-    // Set up periodic reloading (optional - for dynamic updates if needed)
-    const CronJob = cron.CronJob;
-    const job = new CronJob(
-      "*/5 * * * *",
-      async function () {
-        console.log("Reloading templates...");
-        await templateService.initialize();
-        console.log(`Template reload complete! ${templateService.getTemplateCount()} templates loaded.`);
-      },
-      null,
-      true,
-      "America/Los_Angeles"
-    );
 
-    const auditorsJSONFile = config.auditorsJsonFile
+
+    const auditorsJSONFile: any = config.auditorsJsonFile
       ? JSON.parse(fs.readFileSync(config.auditorsJsonFile, "utf8"))
       : {};
 
-    const namesJSONFile = config.namesJsonFile
+    const namesJSONFile: any = config.namesJsonFile
       ? JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"))
       : {};
 

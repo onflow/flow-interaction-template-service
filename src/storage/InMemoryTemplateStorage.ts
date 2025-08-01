@@ -29,14 +29,51 @@ export class InMemoryTemplateStorage {
     
     let templates: any[] = [];
 
-    // Load local template files
-    const localTemplates = (await readFiles(this.config.templateDir))
-      .map((file: any) => file.content)
-      .filter((file) => file !== null)
-      .map((file) => JSON.parse(file));
+    // Try to load pre-built templates first (for Vercel/production)
+    try {
+      const path = require("path");
+      const fs = require("fs");
+      
+      // Try multiple possible paths for the pre-built templates
+      const possiblePaths = [
+        path.join(__dirname, "../../dist/templates.json"),
+        path.join(__dirname, "../../../dist/templates.json"),
+        path.join(process.cwd(), "dist/templates.json"),
+        "./dist/templates.json"
+      ];
+      
+      let preBuiltTemplates: any[] | null = null;
+      for (const templatePath of possiblePaths) {
+        try {
+          if (fs.existsSync(templatePath)) {
+            preBuiltTemplates = JSON.parse(fs.readFileSync(templatePath, "utf8"));
+            console.log(`✅ Found ${preBuiltTemplates?.length || 0} pre-built templates at ${templatePath}`);
+            break;
+          } else {
+            console.log(`❌ Pre-built templates not found: ${templatePath}`);
+          }
+        } catch (pathError) {
+          console.log(`❌ Error reading templates from ${templatePath}:`, pathError instanceof Error ? pathError.message : String(pathError));
+          continue;
+        }
+      }
+      
+      if (preBuiltTemplates) {
+        templates = templates.concat(preBuiltTemplates);
+      } else {
+        throw new Error("No pre-built templates found");
+      }
+    } catch (e) {
+      // Fallback to glob loading (for development)
+      console.log("Pre-built templates not found, using glob loading...", e instanceof Error ? e.message : String(e));
+      const localTemplates = (await readFiles(this.config.templateDir))
+        .map((file: any) => file.content)
+        .filter((file) => file !== null)
+        .map((file) => JSON.parse(file));
 
-    console.log(`Found ${localTemplates.length} local template files`);
-    templates = templates.concat(localTemplates);
+      console.log(`Found ${localTemplates.length} local template files`);
+      templates = templates.concat(localTemplates);
+    }
 
     // Load from peers if configured
     const peers = this.config.peers ? this.config.peers.split(",") : [];
@@ -57,13 +94,50 @@ export class InMemoryTemplateStorage {
 
     // Load existing manifest
     try {
-      const existingManifest = (await readFiles(this.config.templateManifestFile))
-        .map((file: any) => file.content)[0];
+      // Try pre-built manifest first
+      let existingManifest;
+      try {
+        const path = require("path");
+        const fs = require("fs");
+        
+        const possibleManifestPaths = [
+          path.join(__dirname, "../../dist/template-manifest.json"),
+          path.join(__dirname, "../../../dist/template-manifest.json"),
+          path.join(process.cwd(), "dist/template-manifest.json"),
+          "./dist/template-manifest.json"
+        ];
+        
+        for (const manifestPath of possibleManifestPaths) {
+          try {
+            if (fs.existsSync(manifestPath)) {
+              existingManifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+              console.log(`Found pre-built manifest with ${Object.values(existingManifest).length} templates at ${manifestPath}`);
+              break;
+            }
+          } catch (pathError) {
+            continue;
+          }
+        }
+        
+        if (!existingManifest) {
+          throw new Error("No pre-built manifest found");
+        }
+      } catch (e) {
+        // Fallback to file-based manifest
+        try {
+          const manifestFiles = await readFiles(this.config.templateManifestFile);
+          if (manifestFiles.length > 0) {
+            existingManifest = JSON.parse(manifestFiles[0].content);
+            console.log(`Found local manifest with ${Object.values(existingManifest).length} templates`);
+          }
+        } catch (manifestError) {
+          console.log("No manifest found:", e instanceof Error ? e.message : String(e));
+        }
+      }
+      
       if (existingManifest) {
-        const parsed = JSON.parse(existingManifest);
-        console.log(`Found local manifest with ${Object.values(parsed).length} templates`);
-        templates = templates.concat(Object.values(parsed));
-        this.templateManifest = parsed;
+        templates = templates.concat(Object.values(existingManifest));
+        this.templateManifest = existingManifest;
       }
     } catch (e) {
       console.log("No existing manifest found, creating new one");
@@ -76,7 +150,7 @@ export class InMemoryTemplateStorage {
       try {
         const parsedTemplate = typeof template === "object" ? template : JSON.parse(template);
 
-        if (template.f_type !== "InteractionTemplate" || template.f_version !== "1.0.0") {
+        if (parsedTemplate.f_type !== "InteractionTemplate" || parsedTemplate.f_version !== "1.0.0") {
           continue;
         }
 
@@ -86,7 +160,9 @@ export class InMemoryTemplateStorage {
         
         if (recomputedTemplateID !== parsedTemplate.id) {
           console.warn(`Template ID mismatch: recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`);
-          continue;
+          // Use the recomputed ID to fix the mismatch
+          parsedTemplate.id = recomputedTemplateID;
+          console.log(`✅ Fixed template ID to: ${recomputedTemplateID}`);
         }
 
         if (this.templatesById.has(parsedTemplate.id)) {
@@ -109,14 +185,16 @@ export class InMemoryTemplateStorage {
       }
     }
 
-    // Write updated manifest
-    try {
-      await writeFile(
-        this.config.templateManifestFile,
-        JSON.stringify(this.templateManifest, null, 2)
-      );
-    } catch (e) {
-      console.warn("Failed to write manifest file:", e);
+    // Write updated manifest (skip in production/Vercel)
+    if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+      try {
+        await writeFile(
+          this.config.templateManifestFile,
+          JSON.stringify(this.templateManifest, null, 2)
+        );
+      } catch (e) {
+        console.warn("Failed to write manifest file (this is normal in production):", e instanceof Error ? e.message : String(e));
+      }
     }
 
     console.log(`Successfully loaded ${this.templatesById.size} templates into memory`);

@@ -1,28 +1,14 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/v1/(.*)",
-      "dest": "/api"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api"
-    }
-  ],
   "functions": {
     "api/index.ts": {
-      "runtime": "@vercel/node@3.0.7",
-      "includeFiles": "{templates,auditors,names}/**"
+      "memory": 1024,
+      "maxDuration": 60
     }
   },
-  "env": {
-    "NODE_ENV": "production",
-    "FLOW_ACCESS_API_URL": "https://rest-mainnet.onflow.org",
-    "AUDITORS_JSON_FILE": "./auditors/auditors.json",
-    "NAMES_JSON_FILE": "./names/names.json",
-    "TEMPLATE_DIR": "./templates/**/*.json",
-    "FLOW_NETWORK": "mainnet",
-    "DISCOVERY_WALLET": "https://fcl-discovery.onflow.org/mainnet/authn"
-  }
-} 
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index"
+    }
+  ]
+}

@@ -11,8 +11,8 @@ const V1 = "/v1/";
 // Init all routes, setup middlewares and dependencies
 const initApp = (
   templateService: TemplateService,
-  auditorsJSONFile: JSON,
-  namesJSONFile: JSON,
+  auditorsJSONFile: any,
+  namesJSONFile: any,
   allowedOrigins: string = "*",
   allowCredentials: boolean = true
 ) => {
