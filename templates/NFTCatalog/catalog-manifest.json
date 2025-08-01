@@ -55864,5 +55864,88 @@
       },
       "arguments": {}
     }
+  },
+  "4431a123049f8046a69c779672fcdd342b870371601040d4eb572158f5e6ee97": {
+    "f_type": "InteractionTemplate",
+    "f_version": "1.0.0",
+    "id": "4431a123049f8046a69c779672fcdd342b870371601040d4eb572158f5e6ee97",
+    "data": {
+      "type": "transaction",
+      "interface": "",
+      "messages": {
+        "title": {
+          "i18n": {
+            "en-US": "Transfer Flow Tokens"
+          }
+        },
+        "description": {
+          "i18n": {
+            "en-US": "Transfer Flow tokens from your account to another account on the Flow blockchain"
+          }
+        }
+      },
+      "cadence": "import FungibleToken from 0xFUNGIBLETOKENADDRESS\n\ntransaction(amount: UFix64, to: Address) {\n\n    let vault: @{FungibleToken.Vault}\n\n    prepare(signer: auth(BorrowValue) &Account) {\n        self.vault <- signer.storage.borrow<auth(FungibleToken.Withdraw) &{FungibleToken.Provider}>(from: /storage/flowTokenVault)!\n            .withdraw(amount: amount)\n    }\n\n    execute {\n        getAccount(to).capabilities.borrow<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)!\n            .deposit(from: <-self.vault)\n    }\n}",
+      "dependencies": {
+        "0xFUNGIBLETOKENADDRESS": {
+          "FungibleToken": {
+            "mainnet": {
+              "address": "0xf233dcee88fe0abe",
+              "fq_address": "A.0xf233dcee88fe0abe.FungibleToken",
+              "contract": "FungibleToken",
+              "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
+              "pin_block_height": 34166296
+            },
+            "testnet": {
+              "address": "0x9a0766d93b6608b7",
+              "fq_address": "A.0x9a0766d93b6608b7.FungibleToken",
+              "contract": "FungibleToken",
+              "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
+              "pin_block_height": 74776482
+            },
+            "emulator": {
+              "address": "0xee82856bf20e2aa6",
+              "fq_address": "A.0xee82856bf20e2aa6.FungibleToken",
+              "contract": "FungibleToken",
+              "pin": "83c9e3d61d3b5ebf24356a9f17b5b57b12d6d56547abc73e05f820a0ae7d9cf5",
+              "pin_block_height": 0
+            }
+          }
+        }
+      },
+      "arguments": {
+        "amount": {
+          "index": 0,
+          "type": "UFix64",
+          "messages": {
+            "title": {
+              "i18n": {
+                "en-US": "Amount to Transfer"
+              }
+            },
+            "description": {
+              "i18n": {
+                "en-US": "The amount of Flow tokens to transfer (in Flow, not UFix64 units)"
+              }
+            }
+          }
+        },
+        "to": {
+          "index": 1,
+          "type": "Address",
+          "messages": {
+            "title": {
+              "i18n": {
+                "en-US": "Recipient Address"
+              }
+            },
+            "description": {
+              "i18n": {
+                "en-US": "The Flow account address that will receive the tokens"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
