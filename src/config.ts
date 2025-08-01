@@ -1,9 +1,9 @@
 const defaultPort = 3000;
 const defaultAccessApi = "https://rest-mainnet.onflow.org";
-const defaultTemplateDir = "../templates/**/*.json";
-const defaultAuditorsJsonFile = "../auditors/auditors.json";
-const defaultNamesJsonFile = "../names/names.json";
-const defaultTemplateManifestFile = "../templates/NFTCatalog/catalog-manifest.json";
+const defaultTemplateDir = "templates/**/*.json";
+const defaultAuditorsJsonFile = "auditors/auditors.json";
+const defaultNamesJsonFile = "names/names.json";
+const defaultTemplateManifestFile = "templates/NFTCatalog/catalog-manifest.json";
 const defaultAllowedOrigins = "*"; // Default to allow all origins
 
 export function getConfig(env) {

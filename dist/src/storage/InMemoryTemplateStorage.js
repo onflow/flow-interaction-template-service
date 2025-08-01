@@ -98,7 +98,7 @@ class InMemoryTemplateStorage {
         for (const template of templates) {
             try {
                 const parsedTemplate = typeof template === "object" ? template : JSON.parse(template);
-                if (template.f_type !== "InteractionTemplate" || template.f_version !== "1.0.0") {
+                if (parsedTemplate.f_type !== "InteractionTemplate" || parsedTemplate.f_version !== "1.0.0") {
                     continue;
                 }
                 const recomputedTemplateID = await fcl.InteractionTemplateUtils.generateTemplateId({
