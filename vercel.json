@@ -1,25 +1,15 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "dist/src/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxLambdaSize": "50mb"
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/dist/src/index.js"
+      "dest": "/api/index.js"
     }
   ],
   "functions": {
-    "dist/src/index.js": {
+    "api/index.js": {
       "memory": 1024,
       "maxDuration": 30
     }
-  },
-  "buildCommand": "npm run build:vercel"
+  }
 }

@@ -49,11 +49,11 @@ async function run() {
 
 
 
-    const auditorsJSONFile = config.auditorsJsonFile
+    const auditorsJSONFile: any = config.auditorsJsonFile
       ? JSON.parse(fs.readFileSync(config.auditorsJsonFile, "utf8"))
       : {};
 
-    const namesJSONFile = config.namesJsonFile
+    const namesJSONFile: any = config.namesJsonFile
       ? JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"))
       : {};
 

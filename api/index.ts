@@ -31,13 +31,61 @@ async function initializeApp() {
     throw error; // Re-throw since templates are critical
   }
 
-  const auditorsJSONFile = config.auditorsJsonFile
-    ? JSON.parse(fs.readFileSync(config.auditorsJsonFile, "utf8"))
-    : {};
+  // Load auditors file with robust path resolution
+  let auditorsJSONFile = {};
+  if (config.auditorsJsonFile) {
+    try {
+      const path = require("path");
+      const possibleAuditorsPaths = [
+        config.auditorsJsonFile,
+        path.join(process.cwd(), config.auditorsJsonFile),
+        path.join(__dirname, "../", config.auditorsJsonFile),
+        path.join(__dirname, "../../", config.auditorsJsonFile)
+      ];
+      
+      for (const auditorsPath of possibleAuditorsPaths) {
+        try {
+          if (fs.existsSync(auditorsPath)) {
+            auditorsJSONFile = JSON.parse(fs.readFileSync(auditorsPath, "utf8"));
+            console.log(`Loaded auditors from ${auditorsPath}`);
+            break;
+          }
+        } catch (pathError) {
+          continue;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load auditors file:", e instanceof Error ? e.message : String(e));
+    }
+  }
 
-  const namesJSONFile = config.namesJsonFile
-    ? JSON.parse(fs.readFileSync(config.namesJsonFile, "utf8"))
-    : {};
+  // Load names file with robust path resolution  
+  let namesJSONFile = {};
+  if (config.namesJsonFile) {
+    try {
+      const path = require("path");
+      const possibleNamesPaths = [
+        config.namesJsonFile,
+        path.join(process.cwd(), config.namesJsonFile),
+        path.join(__dirname, "../", config.namesJsonFile),
+        path.join(__dirname, "../../", config.namesJsonFile)
+      ];
+      
+      for (const namesPath of possibleNamesPaths) {
+        try {
+          if (fs.existsSync(namesPath)) {
+            namesJSONFile = JSON.parse(fs.readFileSync(namesPath, "utf8"));
+            console.log(`Loaded names from ${namesPath}`);
+            break;
+          }
+        } catch (pathError) {
+          continue;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load names file:", e instanceof Error ? e.message : String(e));
+    }
+  }
 
   app = initApp(
     templateService, 

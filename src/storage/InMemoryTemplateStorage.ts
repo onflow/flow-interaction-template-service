@@ -31,13 +31,38 @@ export class InMemoryTemplateStorage {
 
     // Try to load pre-built templates first (for Vercel/production)
     try {
-      const preBuiltPath = require.resolve("../../dist/templates.json");
-      const preBuiltTemplates = require(preBuiltPath);
-      console.log(`Found ${preBuiltTemplates.length} pre-built templates`);
-      templates = templates.concat(preBuiltTemplates);
+      const path = require("path");
+      const fs = require("fs");
+      
+      // Try multiple possible paths for the pre-built templates
+      const possiblePaths = [
+        path.join(__dirname, "../../dist/templates.json"),
+        path.join(__dirname, "../../../dist/templates.json"),
+        path.join(process.cwd(), "dist/templates.json"),
+        "./dist/templates.json"
+      ];
+      
+      let preBuiltTemplates: any[] | null = null;
+      for (const templatePath of possiblePaths) {
+        try {
+          if (fs.existsSync(templatePath)) {
+            preBuiltTemplates = JSON.parse(fs.readFileSync(templatePath, "utf8"));
+            console.log(`Found ${preBuiltTemplates?.length || 0} pre-built templates at ${templatePath}`);
+            break;
+          }
+        } catch (pathError) {
+          continue;
+        }
+      }
+      
+      if (preBuiltTemplates) {
+        templates = templates.concat(preBuiltTemplates);
+      } else {
+        throw new Error("No pre-built templates found");
+      }
     } catch (e) {
       // Fallback to glob loading (for development)
-      console.log("Pre-built templates not found, using glob loading...");
+      console.log("Pre-built templates not found, using glob loading...", e instanceof Error ? e.message : String(e));
       const localTemplates = (await readFiles(this.config.templateDir))
         .map((file: any) => file.content)
         .filter((file) => file !== null)
@@ -69,15 +94,41 @@ export class InMemoryTemplateStorage {
       // Try pre-built manifest first
       let existingManifest;
       try {
-        const preBuiltManifestPath = require.resolve("../../dist/template-manifest.json");
-        existingManifest = require(preBuiltManifestPath);
-        console.log(`Found pre-built manifest with ${Object.values(existingManifest).length} templates`);
+        const path = require("path");
+        const fs = require("fs");
+        
+        const possibleManifestPaths = [
+          path.join(__dirname, "../../dist/template-manifest.json"),
+          path.join(__dirname, "../../../dist/template-manifest.json"),
+          path.join(process.cwd(), "dist/template-manifest.json"),
+          "./dist/template-manifest.json"
+        ];
+        
+        for (const manifestPath of possibleManifestPaths) {
+          try {
+            if (fs.existsSync(manifestPath)) {
+              existingManifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+              console.log(`Found pre-built manifest with ${Object.values(existingManifest).length} templates at ${manifestPath}`);
+              break;
+            }
+          } catch (pathError) {
+            continue;
+          }
+        }
+        
+        if (!existingManifest) {
+          throw new Error("No pre-built manifest found");
+        }
       } catch (e) {
         // Fallback to file-based manifest
-        const manifestFiles = await readFiles(this.config.templateManifestFile);
-        if (manifestFiles.length > 0) {
-          existingManifest = JSON.parse(manifestFiles[0].content);
-          console.log(`Found local manifest with ${Object.values(existingManifest).length} templates`);
+        try {
+          const manifestFiles = await readFiles(this.config.templateManifestFile);
+          if (manifestFiles.length > 0) {
+            existingManifest = JSON.parse(manifestFiles[0].content);
+            console.log(`Found local manifest with ${Object.values(existingManifest).length} templates`);
+          }
+        } catch (manifestError) {
+          console.log("No manifest found:", e instanceof Error ? e.message : String(e));
         }
       }
       
