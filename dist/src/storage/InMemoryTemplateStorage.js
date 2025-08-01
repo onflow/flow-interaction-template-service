@@ -71,11 +71,15 @@ class InMemoryTemplateStorage {
                 try {
                     if (fs.existsSync(templatePath)) {
                         preBuiltTemplates = JSON.parse(fs.readFileSync(templatePath, "utf8"));
-                        console.log(`Found ${preBuiltTemplates?.length || 0} pre-built templates at ${templatePath}`);
+                        console.log(`✅ Found ${preBuiltTemplates?.length || 0} pre-built templates at ${templatePath}`);
                         break;
+                    }
+                    else {
+                        console.log(`❌ Pre-built templates not found: ${templatePath}`);
                     }
                 }
                 catch (pathError) {
+                    console.log(`❌ Error reading templates from ${templatePath}:`, pathError instanceof Error ? pathError.message : String(pathError));
                     continue;
                 }
             }
@@ -176,7 +180,9 @@ class InMemoryTemplateStorage {
                 });
                 if (recomputedTemplateID !== parsedTemplate.id) {
                     console.warn(`Template ID mismatch: recomputed=${recomputedTemplateID} template=${parsedTemplate.id}`);
-                    continue;
+                    // Use the recomputed ID to fix the mismatch
+                    parsedTemplate.id = recomputedTemplateID;
+                    console.log(`✅ Fixed template ID to: ${recomputedTemplateID}`);
                 }
                 if (this.templatesById.has(parsedTemplate.id)) {
                     console.log(`Skipping duplicate template with ID = ${parsedTemplate.id}`);
@@ -195,12 +201,14 @@ class InMemoryTemplateStorage {
                 console.warn(`Skipping template due to error:`, e);
             }
         }
-        // Write updated manifest
-        try {
-            await (0, write_file_1.writeFile)(this.config.templateManifestFile, JSON.stringify(this.templateManifest, null, 2));
-        }
-        catch (e) {
-            console.warn("Failed to write manifest file:", e);
+        // Write updated manifest (skip in production/Vercel)
+        if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+            try {
+                await (0, write_file_1.writeFile)(this.config.templateManifestFile, JSON.stringify(this.templateManifest, null, 2));
+            }
+            catch (e) {
+                console.warn("Failed to write manifest file (this is normal in production):", e instanceof Error ? e.message : String(e));
+            }
         }
         console.log(`Successfully loaded ${this.templatesById.size} templates into memory`);
     }

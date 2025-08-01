@@ -46,6 +46,22 @@ async function buildTemplates() {
         const manifestPath = path.join(distDir, "template-manifest.json");
         fs.writeFileSync(manifestPath, JSON.stringify(templateManifest, null, 2));
         console.log(`Wrote manifest to ${manifestPath}`);
+        // Copy names.json and auditors.json to dist for Vercel
+        try {
+            const namesPath = path.join(process.cwd(), "names/names.json");
+            const auditorsPath = path.join(process.cwd(), "auditors/auditors.json");
+            if (fs.existsSync(namesPath)) {
+                fs.copyFileSync(namesPath, path.join(distDir, "names.json"));
+                console.log("Copied names.json to dist/");
+            }
+            if (fs.existsSync(auditorsPath)) {
+                fs.copyFileSync(auditorsPath, path.join(distDir, "auditors.json"));
+                console.log("Copied auditors.json to dist/");
+            }
+        }
+        catch (e) {
+            console.warn("Warning: Could not copy config files:", e.message);
+        }
         console.log("✅ Template build complete!");
     }
     catch (error) {
